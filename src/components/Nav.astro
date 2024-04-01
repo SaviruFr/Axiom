@@ -1,0 +1,42 @@
+---
+const website = "Axiom";
+
+const navLinks = {
+  download: {
+    label: "Analysis",
+    url: "/analysis",
+  },
+  plugins: {
+    label: "Source",
+    url: "/source",
+  },
+  test: {
+    label: "Sponser",
+    url: "/sponser",
+  },
+};
+---
+
+<nav
+  class="flex sm:flex-row flex-col gap-6 fixed w-full justify-between py-5 px-10 support-backdrop-blur sm-text main-color border-bottom"
+>
+  <a href="./">
+    <img
+      class="w-12 h-fit mx-auto sm:mx-0"
+      draggable="false"
+      src="/assets/img/favicon.png"
+      alt={website}
+    />
+  </a>
+  <ul class="sm:gap-5 w-fit mx-auto sm:mx-0 flex">
+    {
+      Object.values(navLinks).map((nav) => (
+        <li class="font-regular">
+          <a class="hover-bg py-2 px-4 rounded-md" href={nav.url}>
+            {nav.label}
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</nav>

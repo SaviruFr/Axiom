@@ -1,0 +1,35 @@
+---
+import Layout from "@layouts/Layout.astro";
+import Form from "@components/Form.astro";
+const website = "Axiom";
+---
+
+<Layout
+  title=`${website} | analysis`
+  description=`Feeling unsure about a website? ${website} instantly checks for scams, so you can surf with confidence`
+>
+  <section>
+    <h1 class="top-center medium-text font-bold tracking-tighter">
+      Analyze a website
+    </h1>
+    <div class="c-border mt-10 p-5">
+      <Form />
+    </div>
+  </section>
+  <div
+    class="ml-auto c-border mt-32 mb-10 w-fit flex flex-row px-4 py-2 opacity-0 warning"
+  >
+    <img class="w-10 h-10" src="./assets/svg/warning.svg" alt="warning" />
+    <p class="w-fit my-auto sm-text main-color font-regular ml-2">
+      Please enter a valid URL.
+    </p>
+  </div>
+  <div
+    class="ml-auto c-border w-fit flex flex-row px-4 py-2 opacity-0 info -mt-32 mb-10"
+  >
+    <img class="w-10 h-10" src="./assets/svg/info.svg" alt="info" />
+    <p class="w-fit my-auto sm-text main-color font-regular ml-2">
+      Please enter a URL.
+    </p>
+  </div>
+</Layout>

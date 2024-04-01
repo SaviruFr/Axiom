@@ -1,0 +1,119 @@
+---
+import Layout from "@layouts/Layout.astro";
+import { truncateText } from "@script/textShortener.js";
+import { scanUrl } from "@script/safeBrowsing.js";
+const apiKey = Astro.locals.runtime.env.API;
+const link: string | null = Astro.url.searchParams.get("url");
+const website = "Axiom";
+if (link === null) {
+  return Astro.redirect("/analysis");
+}
+const scamUrl = link;
+let scanResult;
+let threatType;
+await scanUrl(apiKey, scamUrl)
+  .then((result) => {
+    if (result.scam) {
+      scanResult = true;
+      result.threats.forEach((threat) => {
+        threatType = threat.type;
+      });
+      console.log(threatType);
+    } else {
+      scanResult = false;
+    }
+  })
+  .catch((error) => {
+    console.error("Error occurred:", error);
+  });
+let score;
+if (scanResult) {
+  score = 10;
+} else {
+  score = 0;
+}
+const longText = scamUrl;
+const trimmedLink = truncateText(longText);
+console.log(scanResult);
+---
+
+<Layout
+  title=`result | ${scamUrl}`
+  description=`Feeling unsure about a website? ${website} instantly checks for scams, so you can surf with confidence`
+>
+  <div class="flex flex-row top-center">
+    <a class="mr-5" href="/analysis"
+      ><img class="w-10 mt-px" src="./assets/svg/back.svg" alt="back" /></a
+    >
+    <h1 class="medium-text font-main tracking-tighter">
+      Results for <a class="underline" href=`${scamUrl}` target="_blank"
+        >{trimmedLink}</a
+      >
+    </h1>
+  </div>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-10">
+    <div class="c-border flex flex-col p-5">
+      <p class="font-regular md-text main-color">Detected As</p>
+      <p class="font-regular sm-text main-color">
+        {
+          scanResult ? (
+            <p class="font-regular sm-text main-color">High Risk &#128128;</p>
+          ) : (
+            <p class="font-regular sm-text main-color">Trustworthy &#10024;</p>
+          )
+        }
+      </p>
+    </div>
+    <div class="c-border flex flex-col p-5">
+      <p class="font-regular md-text main-color">Google Rating</p>
+      {
+        scanResult === null ? (
+          <p class="font-regular sm-text main-color">Unknown</p>
+        ) : scanResult ? (
+          <p class="font-regular sm-text main-color">Malicious</p>
+        ) : (
+          <p class="font-regular sm-text main-color">Safe</p>
+        )
+      }
+    </div>
+    <div class="c-border p-5 flex flex-col">
+      <p class="font-regular md-text main-color">Type</p>
+      {
+        threatType === "MALWARE" ? (
+          <p class="font-regular sm-text main-color">Malware</p>
+        ) : threatType === "SOCIAL_ENGINEERING" ? (
+          <p class="font-regular sm-text main-color">Social Engineering</p>
+        ) : (
+          <p class="font-regular sm-text main-color">Secure</p>
+        )
+      }
+    </div>
+    <div class="c-border flex flex-col p-5">
+      <p class="font-regular md-text main-color">Score</p>
+      <p class="font-regular md-text main-color">
+        <p class="font-regular sm-text main-color">{score}</p>
+      </p>
+    </div>
+    <div class="c-border flex flex-col gap-5 font-medium p-5">
+      <a
+        target="_blank"
+        class="main-btn w-fit mx-auto text-center"
+        href="https://safebrowsing.google.com/safebrowsing/report_phish/"
+        >Report to Google</a
+      >
+      <a
+        target="_blank"
+        class="main-btn w-fit mx-auto text-center"
+        href="https://microsoft.com/wdsi/support/report-unsafe-site/"
+        >Report to Microsoft</a
+      >
+    </div>
+    <a class="c-border p-5 hover-bg" href="/sponser" target="_blank">
+      <img
+        class="w-20 my-5 mx-auto"
+        src="./assets/svg/heart.svg"
+        alt="Sponsor"
+      />
+    </a>
+  </div>
+</Layout>

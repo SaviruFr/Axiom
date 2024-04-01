@@ -1,0 +1,22 @@
+{
+  "name": "Axiom",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^10.0.1",
+    "@astrojs/tailwind": "^5.1.0",
+    "astro": "^4.5.6",
+    "tailwindcss": "^3.4.1",
+    "validator": "^13.11.0"
+  },
+  "author": "NotSaviru",
+  "license": "ISC",
+  "description": ""
+}

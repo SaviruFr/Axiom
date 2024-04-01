@@ -1,0 +1,36 @@
+---
+import Layout from "@layouts/Layout.astro";
+const website = "Axiom";
+---
+
+<Layout
+  title="Axiom"
+  description=`Feeling unsure about a website? ${website} instantly checks for scams, so you can surf with confidence`
+>
+  <header>
+    <section class="center">
+      <h1 class="font-main text-center main-text">{website}</h1>
+      <div class="max-w-3xl mx-auto">
+        <p
+          class="text-center text-pretty font-regular sm-text mt-2 muted-text pr"
+        >
+          Feeling unsure about a website? {website} instantly checks for scams, so
+          you can surf with confidence. Stop clickbait and protect youreself online
+          - for free!
+        </p>
+      </div>
+      <div>
+        <div
+          class="flex md:flex-row flex-col gap-5 sm:gap-10 mx-auto w-fit mt-10 select-none font-medium"
+        >
+          <a class="w-fit main-btn" draggable="false" href="./analysis"
+            >Get started</a
+          >
+          <a class="w-fit sec-btn mx-auto" draggable="false" href="./source"
+            >Source</a
+          >
+        </div>
+      </div>
+    </section>
+  </header>
+</Layout>
