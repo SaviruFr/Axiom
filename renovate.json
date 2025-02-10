@@ -1,6 +1,12 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "onboarding": false,
+  "requireConfig": "required",
+  "enabledManagers": ["npm"],
+  "labels": ["dependencies"],
   "extends": [
-    "config:recommended"
-  ]
+    "config:base",
+    ":disableDependencyDashboard"
+  ],
+  "dependencyDashboard": false
 }
