@@ -1,52 +1,39 @@
 ---
 import Layout from "@layouts/Layout.astro";
-import { truncateText } from "@script/textShortener.js";
+import { truncateText } from "@script/textFormatter.js";
 import { scanUrl } from "@script/safeBrowsing.js";
 const apiKey = Astro.locals.runtime.env.API;
-const link: string | null = Astro.url.searchParams.get("url");
+const link = Astro.url.searchParams.get("url");
 const website = "Axiom";
-if (link === null) {
+if (!link) {
   return Astro.redirect("/analysis");
 }
 const scamUrl = link;
-let scanResult;
-let threatType;
-await scanUrl(apiKey, scamUrl)
-  .then((result) => {
-    if (result.scam) {
-      scanResult = true;
-      result.threats.forEach((threat) => {
-        threatType = threat.type;
-      });
-      console.log(threatType);
-    } else {
-      scanResult = false;
-    }
-  })
-  .catch((error) => {
-    console.error("Error occurred:", error);
-  });
-let score;
-if (scanResult) {
-  score = 10;
-} else {
-  score = 0;
+let scanResult = false;
+let threatType = null;
+try {
+  const result = await scanUrl(apiKey, scamUrl);
+  scanResult = result.scam;
+  threatType = result.threats[0]?.type || null;
+} catch (error) {
+  console.error("Error scanning URL:", error);
+  return Astro.redirect("/analysis?error=scan_failed");
 }
+const score = scanResult ? 10 : 0;
 const longText = scamUrl;
 const trimmedLink = truncateText(longText);
-console.log(scanResult);
 ---
 
 <Layout
-  title=`result | ${scamUrl}`
-  description=`Feeling unsure about a website? ${website} instantly checks for scams, so you can surf with confidence`
+  title={`result | ${scamUrl}`}
+  description={`Feeling unsure about a website? ${website} instantly checks for scams, so you can surf with confidence`}
 >
   <div class="flex flex-row top-center">
     <a class="mr-5" href="/analysis"
       ><img class="w-10 mt-px" src="./assets/svg/back.svg" alt="back" /></a
     >
     <h1 class="medium-text font-main tracking-tighter">
-      Results for <a class="underline" href=`${scamUrl}` target="_blank"
+      Results for <a class="underline" href={`${scamUrl}`} target="_blank"
         >{trimmedLink}</a
       >
     </h1>
@@ -55,44 +42,40 @@ console.log(scanResult);
     <div class="c-border flex flex-col p-5">
       <p class="font-regular md-text main-color">Detected As</p>
       <p class="font-regular sm-text main-color">
-        {
-          scanResult ? (
-            <p class="font-regular sm-text main-color">High Risk &#128128;</p>
-          ) : (
-            <p class="font-regular sm-text main-color">Trustworthy &#10024;</p>
-          )
-        }
+        {scanResult ? (
+          "High Risk \u{1F480}"
+        ) : (
+          "Trustworthy \u{2728}"
+        )}
       </p>
     </div>
     <div class="c-border flex flex-col p-5">
       <p class="font-regular md-text main-color">Google Rating</p>
-      {
-        scanResult === null ? (
-          <p class="font-regular sm-text main-color">Unknown</p>
-        ) : scanResult ? (
-          <p class="font-regular sm-text main-color">Malicious</p>
-        ) : (
-          <p class="font-regular sm-text main-color">Safe</p>
-        )
-      }
+      {scanResult === null ? (
+        <p class="font-regular sm-text main-color">Unknown</p>
+      ) : scanResult ? (
+        <p class="font-regular sm-text main-color">Malicious</p>
+      ) : (
+        <p class="font-regular sm-text main-color">Safe</p>
+      )}
     </div>
     <div class="c-border p-5 flex flex-col">
       <p class="font-regular md-text main-color">Type</p>
-      {
+      {scanResult ? (
         threatType === "MALWARE" ? (
           <p class="font-regular sm-text main-color">Malware</p>
         ) : threatType === "SOCIAL_ENGINEERING" ? (
           <p class="font-regular sm-text main-color">Social Engineering</p>
         ) : (
-          <p class="font-regular sm-text main-color">Secure</p>
+          <p class="font-regular sm-text main-color">Unknown</p>
         )
-      }
+      ) : (
+        <p class="font-regular sm-text main-color">Secure</p>
+      )}
     </div>
     <div class="c-border flex flex-col p-5">
       <p class="font-regular md-text main-color">Score</p>
-      <p class="font-regular md-text main-color">
-        <p class="font-regular sm-text main-color">{score}</p>
-      </p>
+      <p class="font-regular sm-text main-color">{score}</p>
     </div>
     <div class="c-border flex flex-col gap-5 font-medium p-5">
       <a
@@ -108,7 +91,7 @@ console.log(scanResult);
         >Report to Microsoft</a
       >
     </div>
-    <a class="c-border p-5 hover-bg" href="/sponser" target="_blank">
+    <a class="c-border p-5 hover-bg" href="/sponsor" target="_blank">
       <img
         class="w-20 my-5 mx-auto"
         src="./assets/svg/heart.svg"

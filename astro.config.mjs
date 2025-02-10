@@ -6,9 +6,13 @@ export default defineConfig({
   integrations: [tailwind()],
   output: "server",
   prefetch: {
-    prefetchAll: true,
     defaultStrategy: 'load'
   },
-    adapter: cloudflare()
-
+  adapter: cloudflare({
+    mode: 'directory'
+  }),
+  build: {
+    assets: 'assets'
+  },
+  trailingSlash: 'never'
 });
