@@ -6,7 +6,7 @@ const apiKey = Astro.locals.runtime.env.API;
 const link = Astro.url.searchParams.get("url");
 const website = "Axiom";
 if (!link) {
-  return Astro.redirect("/analysis");
+  return Astro.redirect("/analyze");
 }
 const scamUrl = link;
 let scanResult = false;
@@ -17,7 +17,7 @@ try {
   threatType = result.threats[0]?.type || null;
 } catch (error) {
   console.error("Error scanning URL:", error);
-  return Astro.redirect("/analysis?error=scan_failed");
+  return Astro.redirect("/analyze?error=scan_failed");
 }
 const score = scanResult ? 10 : 0;
 const longText = scamUrl;
@@ -29,7 +29,7 @@ const trimmedLink = truncateText(longText);
   description={`Feeling unsure about a website? ${website} instantly checks for scams, so you can surf with confidence`}
 >
   <div class="flex flex-row top-center">
-    <a class="mr-5" href="/analysis"
+    <a class="mr-5" href="/analyze"
       ><img class="w-10 mt-px" src="./assets/svg/back.svg" alt="back" /></a
     >
     <h1 class="medium-text font-main tracking-tighter">

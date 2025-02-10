@@ -30,7 +30,7 @@ npm run dev
 To use the application, follow these steps:
 
 1. Open your browser and navigate to the local development server (usually `http://localhost:3000`).
-2. Enter the URL you want to scan in the provided form on the analysis page.
+2. Enter the URL you want to scan in the provided form on the analyze page.
 3. View the scan results to determine if the URL is safe or potentially harmful.
 
 ## Contributing
