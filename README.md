@@ -1,13 +1,13 @@
-# Axiom
+# ✨ Axiom 
 
 ## Description
-Axiom is a web application that helps users check the safety of websites by scanning URLs for potential threats such as malware, social engineering, and unwanted software. It leverages Google's Safe Browsing API to provide accurate and up-to-date threat information.
+**Axiom** is a web application that helps users check the safety of websites by scanning URLs for potential threats such as malware, social engineering, and unwanted software. It leverages Google's Safe Browsing API to provide accurate and up-to-date threat information.
 
 ## Features
-- Scan URLs for potential threats
-- Display detailed threat information
-- Redirect users to report unsafe sites to Google and Microsoft
-- User-friendly interface with clear results
+- **Scan URLs** for potential threats
+- **Display detailed threat information**
+- **Redirect users** to report unsafe sites to Google and Microsoft
+- **User-friendly interface** with clear results
 
 ## Installation
 To install and run the project locally, follow these steps:
@@ -43,7 +43,7 @@ Contributions are welcome! To contribute:
 5. Open a pull request.
 
 ## License
-This project is licensed under the WTFPL license.
+This project is licensed under the **WTFPL** license.
 
 ## Contact
-For any questions or inquiries, please contact the project maintainer at savirufr@proton.me.
+For any questions or inquiries, please contact the project maintainer at [savirufr@proton.me](mailto:savirufr@proton.me).
