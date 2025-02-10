@@ -17,7 +17,7 @@ To install and run the project locally, follow these steps:
 git clone https://github.com/savirufr/axiom.git
 
 # Navigate to the project directory
-cd axiom
+cd Axiom
 
 # Install dependencies
 npm install
