@@ -1,5 +1,5 @@
 {
-  "extends": "astro/tsconfigs/base",
+  "extends": "astro/tsconfigs/strict",
   "compilerOptions": {
     "target": "ESNext",
     "module": "ESNext",
@@ -17,9 +17,9 @@
       "@css/*": ["src/styles/*"],
       "@data/*": ["src/data/*"],
       "@scripts/*": ["src/scripts/*"],
-      "@config/*": ["src/config/*"]
+      "@config/*": ["src/config/*"],
+      "@/*": ["src/*"]
     }
-  
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
