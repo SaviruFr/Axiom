@@ -23,7 +23,7 @@ jobs:
       - name: Run Prettier
         uses: creyD/prettier_action@v4.3
         with:
-          prettier_options: --write **/*.{js,jsx,ts,tsx,css,md,json,yml}
+          prettier_options: --write .
           only_changed: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: "style: format code with Prettier"
