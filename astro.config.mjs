@@ -3,16 +3,11 @@ import tailwind from "@astrojs/tailwind";
 import cloudflare from "@astrojs/cloudflare";
 
 export default defineConfig({
-  integrations: [tailwind()],
-  output: "server",
-  prefetch: {
-    defaultStrategy: 'load'
-  },
-  adapter: cloudflare({
-    mode: 'directory'
-  }),
-  build: {
-    assets: 'assets'
-  },
-  trailingSlash: 'never'
+    integrations: [tailwind()],
+    output: 'server',
+    adapter: cloudflare(),
+    build: {
+        assets: 'assets'
+    },
+    trailingSlash: 'never'
 });

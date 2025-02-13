@@ -1,12 +1,12 @@
 ---
 import Layout from "@layouts/Layout.astro";
 import Form from "@components/Form.astro";
-const website = "Axiom";
+import { site } from "@config/site";
 ---
 
 <Layout
-  title={`${website} | analyze`}
-  description={`Feeling unsure about a website? ${website} instantly checks for scams, so you can surf with confidence`}
+  title={`${site.name} | analyze`}
+  description={site.description}
 >
   <section>
     <h1 class="top-center medium-text font-bold tracking-tighter">

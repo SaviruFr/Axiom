@@ -1,14 +1,26 @@
 {
   "extends": "astro/tsconfigs/base",
   "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "jsx": "preserve",
+    "jsxImportSource": "astro",
+    "skipLibCheck": true,
+    "strict": true,
     "baseUrl": ".",
     "paths": {
       "@components/*": ["src/components/*"],
       "@layouts/*": ["src/layouts/*"],
       "@css/*": ["src/styles/*"],
       "@data/*": ["src/data/*"],
-      "@script/*": ["src/scripts/*"],
-      "@assets/*": ["src/assets/*"]
+      "@scripts/*": ["src/scripts/*"],
+      "@assets/*": ["src/assets/*"],
+      "@config/*": ["src/config/*"]
     }
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

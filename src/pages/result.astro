@@ -1,10 +1,10 @@
 ---
 import Layout from "@layouts/Layout.astro";
-import { truncateText } from "@script/textFormatter.js";
-import { scanUrl } from "@script/safeBrowsing.js";
+import { truncateText } from "@scripts/textFormatter";
+import { scanUrl } from "@scripts/safeBrowsing";
+import { site } from "@config/site";
 const apiKey = Astro.locals.runtime.env.API;
 const link = Astro.url.searchParams.get("url");
-const website = "Axiom";
 if (!link) {
   return Astro.redirect("/analyze");
 }
@@ -26,7 +26,7 @@ const trimmedLink = truncateText(longText);
 
 <Layout
   title={`result | ${scamUrl}`}
-  description={`Feeling unsure about a website? ${website} instantly checks for scams, so you can surf with confidence`}
+  description={`Feeling unsure about a website? ${site.name} instantly checks for scams, so you can surf with confidence`}
 >
   <div class="flex flex-row top-center">
     <a class="mr-5" href="/analyze"

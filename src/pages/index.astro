@@ -1,22 +1,18 @@
 ---
 import Layout from "@layouts/Layout.astro";
-const website = "Axiom";
+import { site } from "@config/site";
 ---
 
 <Layout
-  title="Axiom"
-  description={`Feeling unsure about a website? ${website} instantly checks for scams, so you can surf with confidence`}
+  title={site.name}
+  description={site.description}
 >
   <header>
     <section class="center">
-      <h1 class="font-main text-center main-text">{website}</h1>
+      <h1 class="font-main text-center main-text">{site.name}</h1>
       <div class="max-w-3xl mx-auto">
-        <p
-          class="text-center text-pretty font-regular sm-text mt-2 muted-text pr"
-        >
-          Feeling unsure about a website? {website} instantly checks for scams, so
-          you can surf with confidence. Stop clickbait and protect youreself online
-          - for free!
+        <p class="text-center text-pretty font-regular sm-text mt-2 muted-text pr">
+          {site.description} Stop clickbait and protect yourself online - for free!
         </p>
       </div>
       <div>
