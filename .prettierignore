@@ -1,0 +1,24 @@
+# Build output
+dist/
+.output/
+.astro/
+
+# Dependencies
+node_modules/
+
+# Package files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# Configuration files
+.github/workflows/
+renovate.json
+tsconfig.json
+astro.config.*
+tailwind.config.*
+
+# Environment files
+.env
+.env.*
