@@ -7,7 +7,8 @@
     "start": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,md,mdx,astro,json,css,scss}\""
   },
   "dependencies": {
     "@astrojs/cloudflare": "^10.4.1",
@@ -29,5 +30,8 @@
     "URL",
     "malware",
     "safe browsing"
-  ]
+  ],
+  "devDependencies": {
+    "prettier": "^3.5.0"
+  }
 }
