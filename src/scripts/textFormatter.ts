@@ -5,14 +5,14 @@ interface TextFormatterOptions {
 }
 
 const defaultMaxLength = 15;
-const defaultEllipsis = "...";
+const defaultEllipsis = '...';
 const defaultLowerCase = true;
 
 export function truncateText(text: string, options: TextFormatterOptions = {}): string {
-  const { 
-    maxLength = defaultMaxLength, 
+  const {
+    maxLength = defaultMaxLength,
     ellipsis = defaultEllipsis,
-    toLowerCase = defaultLowerCase 
+    toLowerCase = defaultLowerCase,
   } = options;
 
   if (!text) {
@@ -20,12 +20,10 @@ export function truncateText(text: string, options: TextFormatterOptions = {}): 
   }
 
   // Remove http:// or https:// from start
-  text = text.replace(/^https?:\/\//, "");
-  
+  text = text.replace(/^https?:\/\//, '');
+
   // Convert to lowercase if option is enabled
   text = toLowerCase ? text.toLowerCase() : text;
 
-  return text.length > maxLength 
-    ? text.substring(0, maxLength - ellipsis.length) + ellipsis 
-    : text;
+  return text.length > maxLength ? text.substring(0, maxLength - ellipsis.length) + ellipsis : text;
 }

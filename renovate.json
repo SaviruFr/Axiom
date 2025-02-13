@@ -4,9 +4,6 @@
   "requireConfig": "required",
   "enabledManagers": ["npm"],
   "labels": ["dependencies"],
-  "extends": [
-    "config:base",
-    ":disableDependencyDashboard"
-  ],
+  "extends": ["config:base", ":disableDependencyDashboard"],
   "dependencyDashboard": false
 }
