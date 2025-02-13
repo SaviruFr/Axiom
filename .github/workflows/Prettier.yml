@@ -8,8 +8,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - uses: bahmutov/npm-install@v1
-      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          
+      - name: Install dependencies
+        run: npm install
+        
       - name: Run Prettier
         run: npm run format
         
