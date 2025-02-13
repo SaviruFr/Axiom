@@ -26,4 +26,13 @@ jobs:
           prettier_options: --write .
           only_changed: true
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          commit_message: "style: format code with Prettier"
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "style: format code with Prettier"
+          title: 'style: format code with Prettier'
+          body: 'Automated PR to format code using Prettier'
+          branch: prettier-formatting
+          delete-branch: true
