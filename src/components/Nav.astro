@@ -2,16 +2,12 @@
 import { site } from '@config/site';
 
 const navLinks = {
-  download: {
-    label: 'analyze',
-    url: '/analyze',
-  },
-  plugins: {
+  Source: {
     label: 'Source',
     url: '/source',
   },
-  test: {
-    label: 'sponsor',
+  Sponsor: {
+    label: 'Sponsor',
     url: '/sponsor',
   },
 };
@@ -29,10 +25,17 @@ const navLinks = {
     />
   </a>
   <ul class="sm:gap-5 w-fit mx-auto sm:mx-0 flex">
+    <li class="font-regular">
+      <a class="hover-bg py-2 px-4 rounded-md" href="/analyze"> Analyze </a>
+    </li>
     {
       Object.values(navLinks).map((nav) => (
         <li class="font-regular">
-          <a class="hover-bg py-2 px-4 rounded-md" href={nav.url}>
+          <a
+            class="hover-bg py-2 px-4 rounded-md"
+            href={nav.url}
+            target="_blank"
+          >
             {nav.label}
           </a>
         </li>
