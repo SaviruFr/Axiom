@@ -1,6 +1,6 @@
 ---
 import placeHolder from '@data/placeholder.json';
-function getRandomItem(arr) {
+function getRandomItem(arr: string[]): string {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 const randomHolder = getRandomItem(placeHolder);
@@ -26,10 +26,14 @@ const randomHolder = getRandomItem(placeHolder);
 
   const warning = document.querySelector('.warning');
   const info = document.querySelector('.info');
-  const linkInput = document.querySelector('.link');
-  function validateForm(event) {
+  const linkInput = document.querySelector('.link') as HTMLInputElement;
+  const form = document.querySelector('form');
+  const submitButton = document.querySelector('.submit');
+
+  function validateForm(event: Event) {
     event.preventDefault();
 
+    if (!linkInput) return;
     const urlString = linkInput.value;
 
     switch (true) {
@@ -40,23 +44,23 @@ const randomHolder = getRandomItem(placeHolder);
         warningAlert();
         break;
       default:
-        document.querySelector('form').submit();
+        form?.submit();
     }
   }
 
   function infoAlert() {
-    info.classList.add('show-info');
+    info?.classList.add('show-info');
     setTimeout(() => {
-      info.classList.remove('show-info');
+      info?.classList.remove('show-info');
     }, 2000);
   }
 
   function warningAlert() {
-    warning.classList.add('show-warning');
+    warning?.classList.add('show-warning');
     setTimeout(() => {
-      warning.classList.remove('show-warning');
+      warning?.classList.remove('show-warning');
     }, 2000);
   }
 
-  document.querySelector('.submit').addEventListener('click', validateForm);
+  submitButton?.addEventListener('click', validateForm);
 </script>

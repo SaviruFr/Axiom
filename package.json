@@ -32,7 +32,6 @@
     "safe browsing"
   ],
   "devDependencies": {
-    "prettier": "^3.5.0",
-    "prettier-plugin-astro": "^0.14.0"
+    "prettier": "^3.5.0"
   }
 }

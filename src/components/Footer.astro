@@ -1,10 +1,11 @@
 ---
-const website = 'Axiom';
+import { site } from '@config/site';
+const currentYear = new Date().getFullYear();
 ---
 
 <footer class="main-bg py-5 px-10 border-top mt-auto">
   <p class="font-regular other-text">
-    &copy; 2025 {website}. All rights reserved - <a
+    &copy; {currentYear} {site.name}. All rights reserved - <a
       class="muted-text transition-underline"
       href="/source">Source</a
     >
