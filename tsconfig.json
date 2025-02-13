@@ -17,9 +17,9 @@
       "@css/*": ["src/styles/*"],
       "@data/*": ["src/data/*"],
       "@scripts/*": ["src/scripts/*"],
-      "@assets/*": ["src/assets/*"],
       "@config/*": ["src/config/*"]
     }
+  
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

@@ -38,8 +38,8 @@ export async function scanUrl(apiKey: string, url: string): Promise<ScanResult> 
         
         const payload: SafeBrowsingPayload = {
             client: {
-                clientId: "axiom-client",
-                clientVersion: "1.0.0"
+                clientId: "your_client_id",  // Replace with your client ID
+                clientVersion: "your_client_version"  // Replace with your client version
             },
             threatInfo: {
                 threatTypes: ["MALWARE", "SOCIAL_ENGINEERING", "UNWANTED_SOFTWARE", "POTENTIALLY_HARMFUL_APPLICATION"],
