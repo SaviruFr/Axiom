@@ -1,31 +1,42 @@
-name: Prettier
-on: [push]
+name: Code Formatting with Prettier
+on:
+  push:
+    branches:
+      - '**'
 
 jobs:
   prettier:
-    name: Run Prettier
+    name: Format Code
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup Node.js
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js environment
         uses: actions/setup-node@v3
         with:
           node-version: '18'
-          
-      - name: Install dependencies
+          cache: 'npm'
+
+      - name: Install project dependencies
         run: npm install
-        
-      - name: Run Prettier
+
+      - name: Run Prettier formatting
         run: npm run format
-        
-      - name: Create Pull Request
+
+      - name: Create automated PR
         uses: peter-evans/create-pull-request@v5
         with:
-          commit-message: 'style: format with prettier'
-          title: 'style: format code with prettier'
-          body: 'Automated PR to fix code formatting using Prettier'
-          branch: prettier-fixes
+          commit-message: 'style: format codebase with prettier'
+          title: 'Style: Code Formatting Updates'
+          body: |
+           ✨ This PR automatically formats the codebase using Prettier.
+            
+            - Ensures consistent code style
+            - Improves code readability
+            - Maintains project formatting standards
+          branch: prettier-formatting
           delete-branch: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
