@@ -1,12 +1,12 @@
 ---
-import Layout from "@layouts/Layout.astro";
-import { truncateText } from "@scripts/textFormatter";
-import { scanUrl } from "@scripts/safeBrowsing";
-import { site } from "@config/site";
+import Layout from '@layouts/Layout.astro';
+import { truncateText } from '@scripts/textFormatter';
+import { scanUrl } from '@scripts/safeBrowsing';
+import { site } from '@config/site';
 const apiKey = Astro.locals.runtime.env.API;
-const link = Astro.url.searchParams.get("url");
+const link = Astro.url.searchParams.get('url');
 if (!link) {
-  return Astro.redirect("/analyze");
+  return Astro.redirect('/analyze');
 }
 const scamUrl = link;
 let scanResult = false;
@@ -16,8 +16,8 @@ try {
   scanResult = result.scam;
   threatType = result.threats[0]?.type || null;
 } catch (error) {
-  console.error("Error scanning URL:", error);
-  return Astro.redirect("/analyze?error=scan_failed");
+  console.error('Error scanning URL:', error);
+  return Astro.redirect('/analyze?error=scan_failed');
 }
 const score = scanResult ? 10 : 0;
 const longText = scamUrl;
@@ -33,45 +33,43 @@ const trimmedLink = truncateText(longText);
       ><img class="w-10 mt-px" src="./assets/svg/back.svg" alt="back" /></a
     >
     <h1 class="medium-text font-main tracking-tighter">
-      Results for <a class="underline" href={`${scamUrl}`} target="_blank"
-        >{trimmedLink}</a
-      >
+      Results for <a class="underline" href={`${scamUrl}`} target="_blank">{trimmedLink}</a>
     </h1>
   </div>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-10">
     <div class="c-border flex flex-col p-5">
       <p class="font-regular md-text main-color">Detected As</p>
       <p class="font-regular sm-text main-color">
-        {scanResult ? (
-          "High Risk \u{1F480}"
-        ) : (
-          "Trustworthy \u{2728}"
-        )}
+        {scanResult ? 'High Risk \u{1F480}' : 'Trustworthy \u{2728}'}
       </p>
     </div>
     <div class="c-border flex flex-col p-5">
       <p class="font-regular md-text main-color">Google Rating</p>
-      {scanResult === null ? (
-        <p class="font-regular sm-text main-color">Unknown</p>
-      ) : scanResult ? (
-        <p class="font-regular sm-text main-color">Malicious</p>
-      ) : (
-        <p class="font-regular sm-text main-color">Safe</p>
-      )}
+      {
+        scanResult === null ? (
+          <p class="font-regular sm-text main-color">Unknown</p>
+        ) : scanResult ? (
+          <p class="font-regular sm-text main-color">Malicious</p>
+        ) : (
+          <p class="font-regular sm-text main-color">Safe</p>
+        )
+      }
     </div>
     <div class="c-border p-5 flex flex-col">
       <p class="font-regular md-text main-color">Type</p>
-      {scanResult ? (
-        threatType === "MALWARE" ? (
-          <p class="font-regular sm-text main-color">Malware</p>
-        ) : threatType === "SOCIAL_ENGINEERING" ? (
-          <p class="font-regular sm-text main-color">Social Engineering</p>
+      {
+        scanResult ? (
+          threatType === 'MALWARE' ? (
+            <p class="font-regular sm-text main-color">Malware</p>
+          ) : threatType === 'SOCIAL_ENGINEERING' ? (
+            <p class="font-regular sm-text main-color">Social Engineering</p>
+          ) : (
+            <p class="font-regular sm-text main-color">Unknown</p>
+          )
         ) : (
-          <p class="font-regular sm-text main-color">Unknown</p>
+          <p class="font-regular sm-text main-color">Secure</p>
         )
-      ) : (
-        <p class="font-regular sm-text main-color">Secure</p>
-      )}
+      }
     </div>
     <div class="c-border flex flex-col p-5">
       <p class="font-regular md-text main-color">Score</p>
@@ -81,22 +79,16 @@ const trimmedLink = truncateText(longText);
       <a
         target="_blank"
         class="main-btn w-fit mx-auto text-center"
-        href="https://safebrowsing.google.com/safebrowsing/report_phish/"
-        >Report to Google</a
+        href="https://safebrowsing.google.com/safebrowsing/report_phish/">Report to Google</a
       >
       <a
         target="_blank"
         class="main-btn w-fit mx-auto text-center"
-        href="https://microsoft.com/wdsi/support/report-unsafe-site/"
-        >Report to Microsoft</a
+        href="https://microsoft.com/wdsi/support/report-unsafe-site/">Report to Microsoft</a
       >
     </div>
     <a class="c-border p-5 hover-bg" href="/sponsor" target="_blank">
-      <img
-        class="w-20 my-5 mx-auto"
-        src="./assets/svg/heart.svg"
-        alt="Sponsor"
-      />
+      <img class="w-20 my-5 mx-auto" src="./assets/svg/heart.svg" alt="Sponsor" />
     </a>
   </div>
 </Layout>

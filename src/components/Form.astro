@@ -1,5 +1,5 @@
 ---
-import placeHolder from "@data/placeholder.json";
+import placeHolder from '@data/placeholder.json';
 function getRandomItem(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
@@ -19,46 +19,44 @@ const randomHolder = getRandomItem(placeHolder);
     type="url"
     name="url"
   />
-  <button class="submit main-btn font-medium w-fit" type="submit"
-    >Analyze</button
-  >
+  <button class="submit main-btn font-medium w-fit" type="submit">Analyze</button>
 </form>
 <script>
-  import validator from "validator";
+  import validator from 'validator';
 
-  const warning = document.querySelector(".warning");
-  const info = document.querySelector(".info");
-  const linkInput = document.querySelector(".link");
+  const warning = document.querySelector('.warning');
+  const info = document.querySelector('.info');
+  const linkInput = document.querySelector('.link');
   function validateForm(event) {
     event.preventDefault();
 
     const urlString = linkInput.value;
 
     switch (true) {
-      case urlString === "":
+      case urlString === '':
         infoAlert();
         break;
       case !validator.isURL(urlString):
         warningAlert();
         break;
       default:
-        document.querySelector("form").submit();
+        document.querySelector('form').submit();
     }
   }
 
   function infoAlert() {
-    info.classList.add("show-info");
+    info.classList.add('show-info');
     setTimeout(() => {
-      info.classList.remove("show-info");
+      info.classList.remove('show-info');
     }, 2000);
   }
 
   function warningAlert() {
-    warning.classList.add("show-warning");
+    warning.classList.add('show-warning');
     setTimeout(() => {
-      warning.classList.remove("show-warning");
+      warning.classList.remove('show-warning');
     }, 2000);
   }
 
-  document.querySelector(".submit").addEventListener("click", validateForm);
+  document.querySelector('.submit').addEventListener('click', validateForm);
 </script>
