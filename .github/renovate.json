@@ -1,0 +1,36 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:base",
+    ":disableDependencyDashboard"
+  ],
+  "timezone": "Asia/Colombo",
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "automerge": false,
+    "schedule": "at any time",
+    "commitMessagePrefix": "fix(deps): ",
+    "branchTopic": "security-{{depName}}",
+    "groupName": "Security vulnerable dependencies"
+  },
+  "packageRules": [
+    {
+      "description": "Automerge non-major updates",
+      "matchUpdateTypes": ["minor", "patch"],
+      "matchCurrentVersion": "!/^0/",
+      "automerge": true
+    },
+    {
+      "description": "Ignore major updates for 0.x versions",
+      "matchCurrentVersion": "/^0/",
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
+  ],
+  "enabledManagers": ["npm"],
+  "rebaseWhen": "behind-base-branch",
+  "labels": ["dependencies"],
+  "commitMessagePrefix": "chore(deps): ",
+  "onboarding": false,
+  "requireConfig": "required"
+}
