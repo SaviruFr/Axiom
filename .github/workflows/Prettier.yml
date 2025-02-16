@@ -19,11 +19,11 @@ jobs:
           node-version: '18'
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm install
+      - name: Install Prettier and plugins
+        run: npm install --save-dev prettier prettier-plugin-astro
 
       - name: Run Prettier
-        run: npm run format
+        run: npx prettier --write .
 
       - name: Create PR
         uses: peter-evans/create-pull-request@v5
