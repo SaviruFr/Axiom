@@ -1,31 +1,42 @@
 ---
 import Layout from '@layouts/Layout.astro';
 import { truncateText } from '@scripts/textFormatter';
-import { scanUrl } from '@scripts/safeBrowsing';
 import { site } from '@config/site';
-const apiKey = Astro.locals.runtime.env.API;
-const link = Astro.url.searchParams.get('url');
-if (!link) {
+
+const url = Astro.url.searchParams.get('url');
+if (!url) {
   return Astro.redirect('/analyze');
 }
-const scamUrl = link;
+
 let scanResult = false;
 let threatType = null;
+let score = 0;
+
 try {
-  const result = await scanUrl(apiKey, scamUrl);
-  scanResult = result.scam;
-  threatType = result.threats[0]?.type || null;
+  const response = await fetch(`${Astro.url.origin}/api/scan`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url })
+  });
+
+  if (!response.ok) {
+    throw new Error('Scan failed');
+  }
+
+  const data = await response.json();
+  scanResult = data.scanResult;
+  threatType = data.threatType;
+  score = data.score;
 } catch (error) {
   console.error('Error scanning URL:', error);
   return Astro.redirect('/analyze?error=scan_failed');
 }
-const score = scanResult ? 10 : 0;
-const longText = scamUrl;
-const trimmedLink = truncateText(longText);
+
+const trimmedLink = truncateText(url);
 ---
 
 <Layout
-  title={`result | ${scamUrl}`}
+  title={`result | ${url}`}
   description={`Feeling unsure about a website? ${site.name} instantly checks for scams, so you can surf with confidence`}
 >
   <div class="flex flex-row top-center">
@@ -33,7 +44,7 @@ const trimmedLink = truncateText(longText);
       ><img class="w-10 mt-px" src="./assets/svg/back.svg" alt="back" /></a
     >
     <h1 class="medium-text font-main tracking-tighter">
-      Results for <a class="underline" href={`${scamUrl}`} target="_blank">{trimmedLink}</a>
+      Results for <a class="underline" href={`${url}`} target="_blank">{trimmedLink}</a>
     </h1>
   </div>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-10">
@@ -79,12 +90,12 @@ const trimmedLink = truncateText(longText);
       <a
         target="_blank"
         class="main-btn w-fit mx-auto text-center"
-        href="https://safebrowsing.google.com/safebrowsing/report_phish/">Report to Google</a
+        href="https://safebrowsing.google.com/safebrowsing/report_phish">Report to Google</a
       >
       <a
         target="_blank"
         class="main-btn w-fit mx-auto text-center"
-        href="https://microsoft.com/wdsi/support/report-unsafe-site/">Report to Microsoft</a
+        href="https://microsoft.com/wdsi/support/report-unsafe-site">Report to Microsoft</a
       >
     </div>
     <a class="c-border p-5 hover-bg" href="/sponsor" target="_blank">
