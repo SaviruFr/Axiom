@@ -16,7 +16,7 @@ try {
   const response = await fetch(`${Astro.url.origin}/api/scan`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url })
+    body: JSON.stringify({ url }),
   });
 
   if (!response.ok) {
