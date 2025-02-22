@@ -1,7 +1,11 @@
-import type { APIRoute } from 'astro';
+import type { APIRoute, APIContext } from 'astro';
 import { scanUrl } from '@scripts/safeBrowsing';
+import { analyzeUrl } from '@scripts/urlAnalyzer';
+import type { ScanResponse, ThreatMatch } from '@/list/scan';
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async (context: APIContext): Promise<Response> => {
+  const { request } = context;
+  
   if (request.headers.get("Content-Type") !== "application/json") {
     return new Response(JSON.stringify({ error: 'Invalid content type' }), { 
       status: 400,
@@ -11,7 +15,7 @@ export const POST: APIRoute = async ({ request }) => {
 
   try {
     const body = await request.json();
-    const { url } = body;
+    const { url } = body as { url: string };
     
     if (!url) {
       return new Response(JSON.stringify({ error: 'URL is required' }), { 
@@ -20,21 +24,57 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    const apiKey = "AIzaSyDyy43B-HaxvuwP8_IvYyNEdxKrVJF2U4w";
+    const apiKey: string = context.locals.runtime.env.API;
+
     if (!apiKey) {
       throw new Error('API key not configured');
     }
 
-    const result = await scanUrl(apiKey, url);
-    if (!result) {
-      throw new Error('Scan failed - no result');
+    const [safeBrowsingResult, heuristicResult] = await Promise.all([
+      scanUrl(apiKey, url),
+      Promise.resolve(analyzeUrl(url))
+    ]);
+
+    let finalScore: number;
+    let finalRiskLevel: ScanResponse['riskLevel'];
+
+    if (safeBrowsingResult.scam) {
+      finalScore = 10;
+      finalRiskLevel = 'High Risk';
+    } else if (heuristicResult.score > 0) {
+      finalScore = heuristicResult.score;
+      finalRiskLevel = 'Low Risk';
+    } else {
+      // Nothing detected
+      finalScore = 0;
+      finalRiskLevel = 'Safe';
     }
 
-    return new Response(JSON.stringify({
-      scanResult: result.scam,
-      threatType: result.threats?.[0]?.type || null,
-      score: result.scam ? 10 : 0
-    }), {
+    // Combine threat detections
+    const detectedThreats: ThreatMatch[] = [];
+    
+    if (safeBrowsingResult.threats?.length > 0) {
+      detectedThreats.push(...safeBrowsingResult.threats.map(t => ({
+        source: 'Google Safe Browsing',
+        type: t.type
+      })));
+    } else if (heuristicResult.score > 0) {
+      detectedThreats.push({
+        source: 'Pattern Analysis',
+        type: heuristicResult.reasons.join(', ')
+      });
+    }
+
+    const response: ScanResponse = {
+      scanResult: finalScore > 0,
+      riskLevel: finalRiskLevel,
+      threatType: safeBrowsingResult.threats?.[0]?.type || null,
+      score: finalScore,
+      heuristicReasons: heuristicResult.reasons,
+      detectedThreats
+    };
+
+    return new Response(JSON.stringify(response), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });

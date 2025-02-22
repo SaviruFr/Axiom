@@ -2,6 +2,7 @@
 import Layout from '@layouts/Layout.astro';
 import { truncateText } from '@scripts/textFormatter';
 import { site } from '@config/site';
+import type { ThreatMatch } from '@list/scan';
 
 const url = Astro.url.searchParams.get('url');
 if (!url) {
@@ -11,6 +12,9 @@ if (!url) {
 let scanResult = false;
 let threatType = null;
 let score = 0;
+let heuristicReasons = [];
+let riskLevel = 'Safe';
+let detectedThreats: ThreatMatch[] = [];
 
 try {
   const response = await fetch(`${Astro.url.origin}/api/scan`, {
@@ -27,6 +31,9 @@ try {
   scanResult = data.scanResult;
   threatType = data.threatType;
   score = data.score;
+  heuristicReasons = data.heuristicReasons || [];
+  riskLevel = data.riskLevel;
+  detectedThreats = data.detectedThreats || [];
 } catch (error) {
   console.error('Error scanning URL:', error);
   return Astro.redirect('/analyze?error=scan_failed');
@@ -49,9 +56,14 @@ const trimmedLink = truncateText(url);
   </div>
   <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-10">
     <div class="c-border flex flex-col p-5">
-      <p class="font-regular md-text main-color">Detected As</p>
+      <p class="font-regular md-text main-color">Risk Level</p>
       <p class="font-regular sm-text main-color">
-        {scanResult ? 'High Risk \u{1F480}' : 'Trustworthy \u{2728}'}
+        {riskLevel} {
+          riskLevel === 'Safe' ? '\u{2728}' :
+          riskLevel === 'Low Risk' ? '\u{1F440}' :
+          riskLevel === 'Medium Risk' ? '\u{1FAA6}' :
+          '\u{1F480}'
+        }
       </p>
     </div>
     <div class="c-border flex flex-col p-5">
@@ -86,6 +98,18 @@ const trimmedLink = truncateText(url);
       <p class="font-regular md-text main-color">Score</p>
       <p class="font-regular sm-text main-color">{score}</p>
     </div>
+    {detectedThreats.length > 0 && (
+      <div class="c-border col-span-full flex flex-col p-5">
+        <p class="font-regular md-text main-color">Detected Threats</p>
+        <ul class="list-disc list-inside font-regular sm-text main-color mt-2">
+          {detectedThreats.map((threat: ThreatMatch) => (
+            <li>
+              <span class="font-bold">{threat.source}:</span> {threat.type}
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
     <div class="c-border flex flex-col gap-5 font-medium p-5">
       <a
         target="_blank"

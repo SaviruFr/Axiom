@@ -18,7 +18,9 @@
       "@data/*": ["src/data/*"],
       "@scripts/*": ["src/scripts/*"],
       "@config/*": ["src/config/*"],
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@styles/*": ["src/styles/*"],
+      "@list/*": ["src/list/*"]
     }
   },
   "include": ["src/**/*"],

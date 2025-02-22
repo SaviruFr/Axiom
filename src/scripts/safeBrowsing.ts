@@ -15,19 +15,6 @@ interface ScanResult {
   threats: ThreatMatch[];
 }
 
-interface SafeBrowsingPayload {
-  client: {
-    clientId: string;
-    clientVersion: string;
-  };
-  threatInfo: {
-    threatTypes: string[];
-    platformTypes: string[];
-    threatEntryTypes: string[];
-    threatEntries: { url: string }[];
-  };
-}
-
 export async function scanUrl(apiKey: string, url: string): Promise<ScanResult> {
   try {
     if (!apiKey || !url) {
@@ -36,49 +23,56 @@ export async function scanUrl(apiKey: string, url: string): Promise<ScanResult> 
 
     const apiUrl = `https://safebrowsing.googleapis.com/v4/threatMatches:find?key=${apiKey}`;
 
-    const payload: SafeBrowsingPayload = {
-      client: {
-        clientId: 'your_client_id', // Replace with your client ID
-        clientVersion: 'your_client_version', // Replace with your client version
-      },
-      threatInfo: {
-        threatTypes: [
-          'MALWARE',
-          'SOCIAL_ENGINEERING',
-          'UNWANTED_SOFTWARE',
-          'POTENTIALLY_HARMFUL_APPLICATION',
-        ],
-        platformTypes: ['ANY_PLATFORM'],
-        threatEntryTypes: ['URL'],
-        threatEntries: [{ url: url }],
-      },
-    };
-
     const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        client: {
+          clientId: "axiom-scanner",
+          clientVersion: "1.0.0"
+        },
+        threatInfo: {
+          threatTypes: [
+            "THREAT_TYPE_UNSPECIFIED",
+            "MALWARE",
+            "SOCIAL_ENGINEERING",
+            "UNWANTED_SOFTWARE",
+            "POTENTIALLY_HARMFUL_APPLICATION"
+          ],
+          platformTypes: ["ANY_PLATFORM"],
+          threatEntryTypes: ["URL"],
+          threatEntries: [{ url }]
+        }
+      })
     });
 
     if (!response.ok) {
+      console.error('Safe Browsing API error:', await response.text());
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const data = await response.json();
-    if (data.matches && data.matches.length > 0) {
-      const threats: ThreatMatch[] = data.matches.map((match: SafeBrowsingMatch) => ({
+    
+    // Debug log
+    console.log('Safe Browsing API response:', JSON.stringify(data, null, 2));
+
+    // Check if there are any matches
+    const hasMatches = data.matches && Array.isArray(data.matches) && data.matches.length > 0;
+
+    return {
+      scam: hasMatches,
+      threats: hasMatches ? data.matches.map((match: SafeBrowsingMatch) => ({
         type: match.threatType,
         platform: match.platformType,
-        entryType: match.threatEntryType,
-      }));
-      return { scam: true, threats };
-    }
+        entryType: match.threatEntryType
+      })) : []
+    };
 
-    return { scam: false, threats: [] };
   } catch (error) {
-    console.error('Error scanning URL:', error);
-    throw error;
+    console.error('Error in scanUrl:', error);
+    // Return safe result on error instead of throwing
+    return { scam: false, threats: [] };
   }
 }
