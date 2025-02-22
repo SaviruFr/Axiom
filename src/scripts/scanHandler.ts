@@ -18,11 +18,11 @@ export function updateUI(data: ScanData, threatMappings: ThreatMappings): void {
   };
 
   const hasSafeBrowsingThreat = data.detectedThreats.some(
-    t => t.source === 'Google Safe Browsing'
+    (t) => t.source === 'Google Safe Browsing'
   );
   updateElement('safe-browsing', hasSafeBrowsingThreat ? 'Dangerous' : 'Safe');
 
-  const hasAIThreat = data.detectedThreats.some(t => t.source === 'AI Analysis');
+  const hasAIThreat = data.detectedThreats.some((t) => t.source === 'AI Analysis');
   updateElement('ai-rating', hasAIThreat ? 'Potentially Malicious' : 'Safe');
 
   updateElement('risk-level', data.riskLevel);
@@ -30,9 +30,10 @@ export function updateUI(data: ScanData, threatMappings: ThreatMappings): void {
 
   const firstThreat = data.detectedThreats[0];
   if (firstThreat) {
-    const threatText = firstThreat.source === 'AI Analysis'
-      ? (threatMappings[firstThreat.type.toLowerCase()] || firstThreat.type)
-      : firstThreat.type;
+    const threatText =
+      firstThreat.source === 'AI Analysis'
+        ? threatMappings[firstThreat.type.toLowerCase()] || firstThreat.type
+        : firstThreat.type;
     updateElement('threat-type', threatText);
   } else {
     updateElement('threat-type', 'No Threats');
@@ -44,7 +45,7 @@ export async function fetchScanResults(url: string, threatMappings: ThreatMappin
     const response = await fetch('/api/scan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
+      body: JSON.stringify({ url }),
     });
 
     if (!response.ok) throw new Error('Scan failed');
@@ -52,7 +53,7 @@ export async function fetchScanResults(url: string, threatMappings: ThreatMappin
     updateUI(data, threatMappings);
   } catch (error) {
     const elements = ['risk-level', 'safe-browsing', 'ai-rating', 'threat-type'];
-    elements.forEach(id => {
+    elements.forEach((id) => {
       const el = document.getElementById(id);
       if (el) el.textContent = 'Scan Failed';
     });

@@ -32,7 +32,8 @@ const formattedUrl = formatUrl(url);
         <div class="w-full py-2 animate-pulse flex items-center min-h-[24px]">
           <div class="h-6 bg-gray-200 rounded-full dark:bg-gray-700 w-32"></div>
         </div>
-        <p id="risk-level" class="font-regular sm-text main-color min-h-[24px] flex items-center"></p>
+        <p id="risk-level" class="font-regular sm-text main-color min-h-[24px] flex items-center">
+        </p>
       </div>
     </div>
     <div class="c-border p-5 min-h-[6rem] flex flex-col">
@@ -41,7 +42,11 @@ const formattedUrl = formatUrl(url);
         <div class="w-full py-2 animate-pulse flex items-center min-h-[24px]">
           <div class="h-6 bg-gray-200 rounded-full dark:bg-gray-700 w-32"></div>
         </div>
-        <p id="safe-browsing" class="font-regular sm-text main-color min-h-[24px] flex items-center"></p>
+        <p
+          id="safe-browsing"
+          class="font-regular sm-text main-color min-h-[24px] flex items-center"
+        >
+        </p>
       </div>
     </div>
     <div class="c-border p-5 min-h-[6rem] flex flex-col">
@@ -50,7 +55,8 @@ const formattedUrl = formatUrl(url);
         <div class="w-full py-2 animate-pulse flex items-center min-h-[24px]">
           <div class="h-6 bg-gray-200 rounded-full dark:bg-gray-700 w-32"></div>
         </div>
-        <p id="ai-rating" class="font-regular sm-text main-color min-h-[24px] flex items-center"></p>
+        <p id="ai-rating" class="font-regular sm-text main-color min-h-[24px] flex items-center">
+        </p>
       </div>
     </div>
     <div class="c-border p-5 min-h-[6rem] flex flex-col">
@@ -59,7 +65,8 @@ const formattedUrl = formatUrl(url);
         <div class="w-full py-2 animate-pulse flex items-center min-h-[24px]">
           <div class="h-6 bg-gray-200 rounded-full dark:bg-gray-700 w-32"></div>
         </div>
-        <p id="threat-type" class="font-regular sm-text main-color min-h-[24px] flex items-center"></p>
+        <p id="threat-type" class="font-regular sm-text main-color min-h-[24px] flex items-center">
+        </p>
       </div>
     </div>
     <div class="c-border p-5 min-h-[6rem] flex flex-col">
@@ -68,7 +75,8 @@ const formattedUrl = formatUrl(url);
         <div class="w-full py-2 animate-pulse flex items-center min-h-[24px]">
           <div class="h-6 bg-gray-200 rounded-full dark:bg-gray-700 w-32"></div>
         </div>
-        <p id="risk-score" class="font-regular sm-text main-color min-h-[24px] flex items-center"></p>
+        <p id="risk-score" class="font-regular sm-text main-color min-h-[24px] flex items-center">
+        </p>
       </div>
     </div>
     <div class="c-border flex flex-col gap-5 font-medium p-5">
@@ -90,7 +98,7 @@ const formattedUrl = formatUrl(url);
 
   <script>
     type ThreatSource = 'Google Safe Browsing' | 'AI Analysis';
-    
+
     interface Threat {
       source: ThreatSource;
       type: string;
@@ -114,17 +122,20 @@ const formattedUrl = formatUrl(url);
 
     function formatThreatType(type: string): string {
       const specialCases: Record<string, string> = {
-        'SOCIAL_ENGINEERING': 'Social Engineering',
-        'MALWARE': 'Malware',
-        'UNWANTED_SOFTWARE': 'Unwanted Software',
-        'POTENTIALLY_HARMFUL_APPLICATION': 'Potentially Harmful App'
+        SOCIAL_ENGINEERING: 'Social Engineering',
+        MALWARE: 'Malware',
+        UNWANTED_SOFTWARE: 'Unwanted Software',
+        POTENTIALLY_HARMFUL_APPLICATION: 'Potentially Harmful App',
       };
 
-      return specialCases[type] || 
-        type.toLowerCase()
-            .split('_')
-            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(' ');
+      return (
+        specialCases[type] ||
+        type
+          .toLowerCase()
+          .split('_')
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(' ')
+      );
     }
 
     async function fetchResults() {
@@ -135,18 +146,20 @@ const formattedUrl = formatUrl(url);
         const response = await fetch('/api/scan', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url: currentUrl })
+          body: JSON.stringify({ url: currentUrl }),
         });
 
         if (!response.ok) throw new Error('Scan failed');
-        
-        const data = await response.json() as ScanResult;
+
+        const data = (await response.json()) as ScanResult;
 
         updateElement('risk-level', data.riskLevel);
         updateElement('risk-score', data.score.toString());
 
-        const hasGoogleThreat = data.detectedThreats.some(t => t.source === 'Google Safe Browsing');
-        const hasAIThreat = data.detectedThreats.some(t => t.source === 'AI Analysis');
+        const hasGoogleThreat = data.detectedThreats.some(
+          (t) => t.source === 'Google Safe Browsing'
+        );
+        const hasAIThreat = data.detectedThreats.some((t) => t.source === 'AI Analysis');
 
         updateElement('safe-browsing', hasGoogleThreat ? 'Dangerous' : 'Safe');
         updateElement('ai-rating', hasAIThreat ? 'Potentially Malicious' : 'Safe');
@@ -157,10 +170,9 @@ const formattedUrl = formatUrl(url);
         } else {
           updateElement('threat-type', 'No Threats');
         }
-
       } catch (error) {
         const elements = ['risk-level', 'safe-browsing', 'ai-rating', 'threat-type'];
-        elements.forEach(id => updateElement(id, 'Scan Failed'));
+        elements.forEach((id) => updateElement(id, 'Scan Failed'));
       }
     }
     fetchResults();
