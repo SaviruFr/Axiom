@@ -3,32 +3,29 @@ import { scanUrl } from '@scripts/safeBrowsing';
 import { analyzeWithGemini } from '@scripts/geminiScanner';
 import type { ScanResponse, ThreatMatch } from '@/list/scan';
 
-export const POST: APIRoute = async (context: APIContext): Promise<Response> => {
-  const { request } = context;
-  
-  if (request.headers.get("Content-Type") !== "application/json") {
-    return new Response(JSON.stringify({ error: 'Invalid content type' }), { 
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
+export const POST: APIRoute = async ({ request, locals }): Promise<Response> => {
   try {
-    const body = await request.json();
-    const { url } = body as { url: string };
+    const { url } = await request.json();
     
+    const runtime = locals.runtime;
+    const safeBrowsingKey = runtime.env.API;
+    const geminiKey = runtime.env.GEMINI_API_KEY;
+
+    console.log('Environment check:', {
+      hasSafeBrowsingKey: !!safeBrowsingKey,
+      hasGeminiKey: !!geminiKey,
+      url
+    });
+
+    if (!safeBrowsingKey || !geminiKey) {
+      throw new Error('API keys not configured in Cloudflare');
+    }
+
     if (!url) {
       return new Response(JSON.stringify({ error: 'URL is required' }), { 
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
-    }
-
-    const safeBrowsingKey = context.locals.runtime.env.API;
-    const geminiKey = context.locals.runtime.env.GEMINI_API_KEY;
-
-    if (!safeBrowsingKey || !geminiKey) {
-      throw new Error('API keys not configured');
     }
 
     const [safeBrowsingResult, geminiResult] = await Promise.all([
