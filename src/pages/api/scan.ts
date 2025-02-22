@@ -11,11 +11,6 @@ export const POST: APIRoute = async ({ request, locals }): Promise<Response> => 
     const safeBrowsingKey = runtime.env.API;
     const geminiKey = runtime.env.GEMINI_API_KEY;
 
-    console.log('Environment check:', {
-      hasSafeBrowsingKey: !!safeBrowsingKey,
-      hasGeminiKey: !!geminiKey,
-      url
-    });
 
     if (!safeBrowsingKey || !geminiKey) {
       throw new Error('API keys not configured in Cloudflare');
@@ -70,7 +65,6 @@ export const POST: APIRoute = async ({ request, locals }): Promise<Response> => 
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    console.error('Scan API error:', error);
     return new Response(JSON.stringify({ 
       error: error instanceof Error ? error.message : 'Scan failed'
     }), {
