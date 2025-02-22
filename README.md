@@ -1,56 +1,77 @@
 # ✨ Axiom
 
-## Description
+A URL security analysis tool integrating Google Safe Browsing API and machine learning for comprehensive threat detection.
 
-**Axiom** is a web application that helps users check the safety of websites by scanning URLs for potential threats such as malware, social engineering, and unwanted software. It leverages Google's Safe Browsing API to provide accurate and up-to-date threat information.
+## Technology Stack
 
-## Features
+- **Frontend**: TypeScript, Astro, TailwindCSS
+- **APIs**: Google Safe Browsing, Gemini
+- **Deployment**: Cloudflare Pages
+- **Analysis**: Machine Learning
 
-- **Scan URLs** for potential threats
-- **Display detailed threat information**
-- **Redirect users** to report unsafe sites to Google and Microsoft
-- **User-friendly interface** with clear results
+## System Requirements
 
-## Installation
+- Node.js (18.x+)
+- npm or pnpm
 
-To install and run the project locally, follow these steps:
+## API Keys Required
+
+- Google Cloud Platform
+  - Safe Browsing API
+  - Gemini API
+- Cloudflare Account
+
+## Quick Start
 
 ```bash
-# Clone the repository
-git clone https://github.com/SaviruFr/Axiom.git
-
-# Navigate to the project directory
-cd Axiom
-
 # Install dependencies
 npm install
 
-# Start the development server
+# Configure environment
+cp .env.example .env
+# Edit .env with your API keys
+
+# Development
 npm run dev
+
+# Production
+npm run build
+npm run preview
 ```
 
-## Usage
+## API Integration
 
-To use the application, follow these steps:
+```typescript
+GOOGLE_SAFE_BROWSING_KEY=your_key
+GEMINI_API_KEY=your_key
+```
 
-1. Open your browser and navigate to the local development server (usually `http://localhost:4321`).
-2. Enter the URL you want to scan in the provided form on the analyze page.
-3. View the scan results to determine if the URL is safe or potentially harmful.
+## Development Guidelines
 
-## Contributing
+- Use TypeScript strict mode
+- Implement proper error handling
 
-Contributions are welcome! To contribute:
+## Security Features
 
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature-branch`).
-3. Make your changes and commit them (`git commit -m 'Add new feature'`).
-4. Push to the branch (`git push origin feature-branch`).
-5. Open a pull request.
+- Real-time URL analysis
+- Phishing site identification
+- Malware detection
+
+## Production Deployment
+
+```bash
+npm run build
+```
+
+## Support
+
+- Issues: GitHub Issue Tracker
+- Security: savirufr@proton.me
 
 ## License
 
-This project is licensed under the **WTFPL** license.
+WTFPL
 
 ## Contact
 
-For any questions or inquiries, please contact the project maintainer at [savirufr@proton.me](mailto:savirufr@proton.me).
+[@SaviruFr](https://github.com/SaviruFr) - savirufr@proton.me
