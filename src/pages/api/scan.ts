@@ -1,6 +1,6 @@
 import type { APIRoute, APIContext } from 'astro';
 import { scanUrl } from '@scripts/safeBrowsing';
-import { analyzeUrl } from '@scripts/urlAnalyzer';
+import { analyzeWithGemini } from '@scripts/geminiScanner';
 import type { ScanResponse, ThreatMatch } from '@/list/scan';
 
 export const POST: APIRoute = async (context: APIContext): Promise<Response> => {
@@ -24,54 +24,48 @@ export const POST: APIRoute = async (context: APIContext): Promise<Response> => 
       });
     }
 
-    const apiKey: string = context.locals.runtime.env.API;
+    const safeBrowsingKey = context.locals.runtime.env.API;
+    const geminiKey = context.locals.runtime.env.GEMINI_API_KEY;
 
-    if (!apiKey) {
-      throw new Error('API key not configured');
+    if (!safeBrowsingKey || !geminiKey) {
+      throw new Error('API keys not configured');
     }
 
-    const [safeBrowsingResult, heuristicResult] = await Promise.all([
-      scanUrl(apiKey, url),
-      Promise.resolve(analyzeUrl(url))
+    const [safeBrowsingResult, geminiResult] = await Promise.all([
+      scanUrl(safeBrowsingKey, url),
+      analyzeWithGemini(url, geminiKey)
     ]);
 
-    let finalScore: number;
-    let finalRiskLevel: ScanResponse['riskLevel'];
+    let finalScore = 0;
+    let finalRiskLevel: ScanResponse['riskLevel'] = 'Safe';
+    const detectedThreats: ThreatMatch[] = [];
 
     if (safeBrowsingResult.scam) {
       finalScore = 10;
       finalRiskLevel = 'High Risk';
-    } else if (heuristicResult.score > 0) {
-      finalScore = heuristicResult.score;
-      finalRiskLevel = 'Low Risk';
-    } else {
-      // Nothing detected
-      finalScore = 0;
-      finalRiskLevel = 'Safe';
-    }
-
-    // Combine threat detections
-    const detectedThreats: ThreatMatch[] = [];
-    
-    if (safeBrowsingResult.threats?.length > 0) {
       detectedThreats.push(...safeBrowsingResult.threats.map(t => ({
-        source: 'Google Safe Browsing',
+        source: 'Google Safe Browsing' as const,
         type: t.type
       })));
-    } else if (heuristicResult.score > 0) {
+    }
+
+    if (geminiResult.isMalicious) {
+      finalScore = Math.max(finalScore, 5);
+      finalRiskLevel = finalScore === 10 ? 'High Risk' : 'Medium Risk';
       detectedThreats.push({
-        source: 'Pattern Analysis',
-        type: heuristicResult.reasons.join(', ')
+        source: 'AI Analysis' as const,
+        type: geminiResult.reason
       });
     }
 
     const response: ScanResponse = {
       scanResult: finalScore > 0,
       riskLevel: finalRiskLevel,
-      threatType: safeBrowsingResult.threats?.[0]?.type || null,
+      threatType: detectedThreats[0]?.type || null,
       score: finalScore,
-      heuristicReasons: heuristicResult.reasons,
-      detectedThreats
+      detectedThreats,
+      timestamp: new Date().toISOString(),
+      scanId: crypto.randomUUID()
     };
 
     return new Response(JSON.stringify(response), {

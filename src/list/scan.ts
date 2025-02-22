@@ -1,13 +1,17 @@
+export type RiskLevel = 'Safe' | 'Low Risk' | 'Medium Risk' | 'High Risk';
+
 export interface ThreatMatch {
-  source: string;
+  source: 'Google Safe Browsing' | 'AI Analysis' | 'Pattern Analysis';
   type: string;
 }
 
 export interface ScanResponse {
   scanResult: boolean;
-  riskLevel: 'Safe' | 'Low Risk' | 'Medium Risk' | 'High Risk';
+  riskLevel: RiskLevel;
   threatType: string | null;
   score: number;
-  heuristicReasons: string[];
   detectedThreats: ThreatMatch[];
+  timestamp: string;
+  scanId?: string;
+  heuristicReasons?: string[];
 }

@@ -2,44 +2,15 @@
 import Layout from '@layouts/Layout.astro';
 import { truncateText } from '@scripts/textFormatter';
 import { site } from '@config/site';
-import type { ThreatMatch } from '@list/scan';
+import { formatUrl } from '@scripts/urlFormatter';
 
 const url = Astro.url.searchParams.get('url');
 if (!url) {
   return Astro.redirect('/analyze');
 }
 
-let scanResult = false;
-let threatType = null;
-let score = 0;
-let heuristicReasons = [];
-let riskLevel = 'Safe';
-let detectedThreats: ThreatMatch[] = [];
-
-try {
-  const response = await fetch(`${Astro.url.origin}/api/scan`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ url })
-  });
-
-  if (!response.ok) {
-    throw new Error('Scan failed');
-  }
-
-  const data = await response.json();
-  scanResult = data.scanResult;
-  threatType = data.threatType;
-  score = data.score;
-  heuristicReasons = data.heuristicReasons || [];
-  riskLevel = data.riskLevel;
-  detectedThreats = data.detectedThreats || [];
-} catch (error) {
-  console.error('Error scanning URL:', error);
-  return Astro.redirect('/analyze?error=scan_failed');
-}
-
 const trimmedLink = truncateText(url);
+const formattedUrl = formatUrl(url);
 ---
 
 <Layout
@@ -48,82 +19,150 @@ const trimmedLink = truncateText(url);
 >
   <div class="flex flex-row top-center">
     <a class="mr-5" href="/analyze"
-      ><img class="w-10 mt-px" src="./assets/svg/back.svg" alt="back" /></a
+      ><img class="w-10 mt-1" src="./assets/svg/back.svg" alt="back" /></a
     >
     <h1 class="medium-text font-main tracking-tighter">
-      Results for <a class="underline" href={`${url}`} target="_blank">{trimmedLink}</a>
+      Results for <a class="underline" href={formattedUrl} target="_blank">{trimmedLink}</a>
     </h1>
   </div>
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-10">
-    <div class="c-border flex flex-col p-5">
-      <p class="font-regular md-text main-color">Risk Level</p>
-      <p class="font-regular sm-text main-color">
-        {riskLevel} {
-          riskLevel === 'Safe' ? '\u{2728}' :
-          riskLevel === 'Low Risk' ? '\u{1F440}' :
-          riskLevel === 'Medium Risk' ? '\u{1FAA6}' :
-          '\u{1F480}'
-        }
-      </p>
-    </div>
-    <div class="c-border flex flex-col p-5">
-      <p class="font-regular md-text main-color">Google Rating</p>
-      {
-        scanResult === null ? (
-          <p class="font-regular sm-text main-color">Unknown</p>
-        ) : scanResult ? (
-          <p class="font-regular sm-text main-color">Malicious</p>
-        ) : (
-          <p class="font-regular sm-text main-color">Safe</p>
-        )
-      }
-    </div>
-    <div class="c-border p-5 flex flex-col">
-      <p class="font-regular md-text main-color">Type</p>
-      {
-        scanResult ? (
-          threatType === 'MALWARE' ? (
-            <p class="font-regular sm-text main-color">Malware</p>
-          ) : threatType === 'SOCIAL_ENGINEERING' ? (
-            <p class="font-regular sm-text main-color">Social Engineering</p>
-          ) : (
-            <p class="font-regular sm-text main-color">Unknown</p>
-          )
-        ) : (
-          <p class="font-regular sm-text main-color">Secure</p>
-        )
-      }
-    </div>
-    <div class="c-border flex flex-col p-5">
-      <p class="font-regular md-text main-color">Score</p>
-      <p class="font-regular sm-text main-color">{score}</p>
-    </div>
-    {detectedThreats.length > 0 && (
-      <div class="c-border col-span-full flex flex-col p-5">
-        <p class="font-regular md-text main-color">Detected Threats</p>
-        <ul class="list-disc list-inside font-regular sm-text main-color mt-2">
-          {detectedThreats.map((threat: ThreatMatch) => (
-            <li>
-              <span class="font-bold">{threat.source}:</span> {threat.type}
-            </li>
-          ))}
-        </ul>
+  <div id="results-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-10">
+    <div class="c-border p-5 min-h-[6rem] flex flex-col">
+      <p class="font-regular md-text main-color mb-2">Risk Level</p>
+      <div class="flex-1 flex items-center">
+        <div class="w-full py-2 animate-pulse flex items-center min-h-[24px]">
+          <div class="h-6 bg-gray-200 rounded-full dark:bg-gray-700 w-32"></div>
+        </div>
+        <p id="risk-level" class="font-regular sm-text main-color min-h-[24px] flex items-center"></p>
       </div>
-    )}
-    <div class="c-border flex flex-col gap-5 font-medium p-5">
-      <a
-        target="_blank"
-        class="main-btn w-fit mx-auto text-center"
-        href="https://safebrowsing.google.com/safebrowsing/report_phish">Report to Google</a
-      >
-      <a
-        target="_blank"
-        class="main-btn w-fit mx-auto text-center"
-        href="https://microsoft.com/wdsi/support/report-unsafe-site">Report to Microsoft</a
-      >
     </div>
-    <a class="c-border p-5 hover-bg" href="/sponsor" target="_blank">
-      <img class="w-20 my-5 mx-auto" src="./assets/svg/heart.svg" alt="Sponsor" />
-    </a>
+    <div class="c-border p-5 min-h-[6rem] flex flex-col">
+      <p class="font-regular md-text main-color mb-2">Safe Browsing</p>
+      <div class="flex-1 flex items-center">
+        <div class="w-full py-2 animate-pulse flex items-center min-h-[24px]">
+          <div class="h-6 bg-gray-200 rounded-full dark:bg-gray-700 w-32"></div>
+        </div>
+        <p id="safe-browsing" class="font-regular sm-text main-color min-h-[24px] flex items-center"></p>
+      </div>
+    </div>
+    <div class="c-border p-5 min-h-[6rem] flex flex-col">
+      <p class="font-regular md-text main-color mb-2">AI Rating</p>
+      <div class="flex-1 flex items-center">
+        <div class="w-full py-2 animate-pulse flex items-center min-h-[24px]">
+          <div class="h-6 bg-gray-200 rounded-full dark:bg-gray-700 w-32"></div>
+        </div>
+        <p id="ai-rating" class="font-regular sm-text main-color min-h-[24px] flex items-center"></p>
+      </div>
+    </div>
+    <div class="c-border p-5 min-h-[6rem] flex flex-col">
+      <p class="font-regular md-text main-color mb-2">Type</p>
+      <div class="flex-1 flex items-center">
+        <div class="w-full py-2 animate-pulse flex items-center min-h-[24px]">
+          <div class="h-6 bg-gray-200 rounded-full dark:bg-gray-700 w-32"></div>
+        </div>
+        <p id="threat-type" class="font-regular sm-text main-color min-h-[24px] flex items-center"></p>
+      </div>
+    </div>
+    <div class="c-border p-5 min-h-[6rem] flex flex-col">
+      <p class="font-regular md-text main-color mb-2">Score</p>
+      <div class="flex-1 flex items-center">
+        <div class="w-full py-2 animate-pulse flex items-center min-h-[24px]">
+          <div class="h-6 bg-gray-200 rounded-full dark:bg-gray-700 w-32"></div>
+        </div>
+        <p id="risk-score" class="font-regular sm-text main-color min-h-[24px] flex items-center"></p>
+      </div>
+    </div>
+    <div class="c-border flex flex-col gap-5 font-medium p-5">
+      <p class="font-regular md-text main-color">Report to</p>
+      <div class="flex">
+        <a
+          target="_blank"
+          class="main-btn w-fit mx-auto text-center"
+          href="https://safebrowsing.google.com/safebrowsing/report_phish/">Google</a
+        >
+        <a
+          target="_blank"
+          class="main-btn w-fit mx-auto text-center"
+          href="https://microsoft.com/wdsi/support/report-unsafe-site-guest">Microsoft</a
+        >
+      </div>
+    </div>
   </div>
+
+  <script>
+    type ThreatSource = 'Google Safe Browsing' | 'AI Analysis';
+    
+    interface Threat {
+      source: ThreatSource;
+      type: string;
+    }
+
+    interface ScanResult {
+      riskLevel: string;
+      detectedThreats: Threat[];
+      score: number;
+    }
+
+    function updateElement(id: string, content: string) {
+      const element = document.getElementById(id);
+      const loadingEl = element?.previousElementSibling;
+      if (element && loadingEl) {
+        loadingEl.classList.add('hidden');
+        element.classList.remove('hidden');
+        element.textContent = content;
+      }
+    }
+
+    function formatThreatType(type: string): string {
+      const specialCases: Record<string, string> = {
+        'SOCIAL_ENGINEERING': 'Social Engineering',
+        'MALWARE': 'Malware',
+        'UNWANTED_SOFTWARE': 'Unwanted Software',
+        'POTENTIALLY_HARMFUL_APPLICATION': 'Potentially Harmful App'
+      };
+
+      return specialCases[type] || 
+        type.toLowerCase()
+            .split('_')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(' ');
+    }
+
+    async function fetchResults() {
+      const currentUrl = new URL(window.location.href).searchParams.get('url');
+      if (!currentUrl) return;
+
+      try {
+        const response = await fetch('/api/scan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: currentUrl })
+        });
+
+        if (!response.ok) throw new Error('Scan failed');
+        
+        const data = await response.json() as ScanResult;
+
+        updateElement('risk-level', data.riskLevel);
+        updateElement('risk-score', data.score.toString());
+
+        const hasGoogleThreat = data.detectedThreats.some(t => t.source === 'Google Safe Browsing');
+        const hasAIThreat = data.detectedThreats.some(t => t.source === 'AI Analysis');
+
+        updateElement('safe-browsing', hasGoogleThreat ? 'Dangerous' : 'Safe');
+        updateElement('ai-rating', hasAIThreat ? 'Potentially Malicious' : 'Safe');
+
+        if (data.detectedThreats.length > 0) {
+          const threat = data.detectedThreats[0];
+          updateElement('threat-type', formatThreatType(threat.type));
+        } else {
+          updateElement('threat-type', 'No Threats');
+        }
+
+      } catch (error) {
+        const elements = ['risk-level', 'safe-browsing', 'ai-rating', 'threat-type'];
+        elements.forEach(id => updateElement(id, 'Scan Failed'));
+      }
+    }
+    fetchResults();
+  </script>
 </Layout>
