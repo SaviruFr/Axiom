@@ -21,21 +21,21 @@ export async function scanUrl(apiKey: string, url: string): Promise<ScanResult> 
 
     const requestBody = {
       client: {
-        clientId: "axiom",
-        clientVersion: "1.0.0"
+        clientId: 'axiom',
+        clientVersion: '1.0.0',
       },
       threatInfo: {
         threatTypes: [
-          "MALWARE",
-          "SOCIAL_ENGINEERING",
-          "UNWANTED_SOFTWARE",
-          "POTENTIALLY_HARMFUL_APPLICATION",
-          "THREAT_TYPE_UNSPECIFIED"
+          'MALWARE',
+          'SOCIAL_ENGINEERING',
+          'UNWANTED_SOFTWARE',
+          'POTENTIALLY_HARMFUL_APPLICATION',
+          'THREAT_TYPE_UNSPECIFIED',
         ],
-        platformTypes: ["ANY_PLATFORM", "WINDOWS", "LINUX", "ANDROID", "OSX", "IOS"],
-        threatEntryTypes: ["URL"],
-        threatEntries: [{ url }]
-      }
+        platformTypes: ['ANY_PLATFORM', 'WINDOWS', 'LINUX', 'ANDROID', 'OSX', 'IOS'],
+        threatEntryTypes: ['URL'],
+        threatEntries: [{ url }],
+      },
     };
 
     const response = await fetch(apiUrl, {
@@ -43,7 +43,7 @@ export async function scanUrl(apiKey: string, url: string): Promise<ScanResult> 
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify(requestBody),
     });
 
     const responseText = await response.text();
@@ -71,14 +71,13 @@ export async function scanUrl(apiKey: string, url: string): Promise<ScanResult> 
     const threats = data.matches.map((match: SafeBrowsingMatch) => ({
       type: match.threatType,
       platform: match.platformType,
-      entryType: match.threatEntryType
+      entryType: match.threatEntryType,
     }));
 
     return {
       scam: true,
-      threats
+      threats,
     };
-
   } catch (error) {
     return { scam: false, threats: [] };
   }
