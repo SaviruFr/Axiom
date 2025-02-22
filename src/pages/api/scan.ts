@@ -1,85 +1,93 @@
-import type { APIRoute, APIContext } from 'astro';
+import type { APIRoute } from 'astro';
+import { getDb } from '../../server/db/client';
+import { phishingDomains } from '../../server/db/schema';
+import { eq } from 'drizzle-orm';
+import { formatUrl } from '../../scripts/urlFormatter';
+import { Gemini } from '@scripts/geminiScanner';
 import { scanUrl } from '@scripts/safeBrowsing';
-import { analyzeWithGemini } from '@scripts/geminiScanner';
-import type { ScanResponse, ThreatMatch } from '@/list/scan';
+import { formatThreatType } from '../../scripts/threatFormatter';
 
 export const POST: APIRoute = async ({ request, locals }): Promise<Response> => {
   try {
     const { url } = await request.json();
-
-    const runtime = locals.runtime;
-    if (!runtime?.env) {
-      throw new Error('Runtime environment not available');
-    }
-
-    const safeBrowsingKey = runtime.env.API;
-    const geminiKey = runtime.env.GEMINI_API_KEY;
-
-    if (!safeBrowsingKey || !geminiKey) {
-      throw new Error(
-        `API keys not configured (Safe Browsing: ${!!safeBrowsingKey}, Gemini: ${!!geminiKey})`
-      );
-    }
-
+    
     if (!url) {
-      return new Response(JSON.stringify({ error: 'URL is required' }), {
+      return new Response(JSON.stringify({ error: 'URL is required' }), { 
         status: 400,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json' }
       });
     }
 
-    const [safeBrowsingResult, geminiResult] = await Promise.all([
-      scanUrl(safeBrowsingKey, url),
-      analyzeWithGemini(url, geminiKey),
+    // Format URL and extract domain
+    const formattedUrl = formatUrl(url);
+    const domain = new URL(formattedUrl).hostname;
+
+    console.log('Checking domain:', domain);
+    console.log('Available runtime env:', Object.keys(locals.runtime.env));
+
+    const db = getDb({ locals });
+    const results = await db.select()
+      .from(phishingDomains)
+      .where(eq(phishingDomains.domain, domain));
+
+    const inDatabase = results.length > 0;
+
+    // Run AI and Safe Browsing checks
+    const geminiKey = locals.runtime.env.GEMINI_API_KEY;
+    const safeBrowsingKey = locals.runtime.env.API;
+
+    const [aiResult, safeBrowsingResult] = await Promise.all([
+      Gemini(formattedUrl, geminiKey),
+      scanUrl(safeBrowsingKey, formattedUrl)
     ]);
 
-    let finalScore = 0;
-    let finalRiskLevel: ScanResponse['riskLevel'] = 'Safe';
-    const detectedThreats: ThreatMatch[] = [];
+    // Determine final risk level and score
+    let finalScore = inDatabase ? 10 : 0;
+    let finalRiskLevel = inDatabase ? 'High Risk' : 'Safe';
+    const threats = [];
+
+    if (inDatabase) {
+      threats.push({
+        source: 'Database',
+        type: formatThreatType('MALICIOUS_SITE')
+      });
+    }
+
+    if (aiResult.isMalicious) {
+      finalScore = Math.max(finalScore, 5);
+      finalRiskLevel = finalScore === 10 ? 'High Risk' : 'Medium Risk';
+      threats.push({
+        source: 'AI Analysis',
+        type: formatThreatType(aiResult.reason)
+      });
+    }
 
     if (safeBrowsingResult.scam) {
       finalScore = 10;
       finalRiskLevel = 'High Risk';
-      detectedThreats.push(
-        ...safeBrowsingResult.threats.map((t) => ({
-          source: 'Google Safe Browsing' as const,
-          type: t.type,
-        }))
-      );
+      threats.push(...safeBrowsingResult.threats.map(t => ({
+        source: 'Google Safe Browsing',
+        type: formatThreatType(t.type)
+      })));
     }
 
-    if (geminiResult.isMalicious) {
-      finalScore = Math.max(finalScore, 5);
-      finalRiskLevel = finalScore === 10 ? 'High Risk' : 'Medium Risk';
-      detectedThreats.push({
-        source: 'AI Analysis' as const,
-        type: geminiResult.reason,
-      });
-    }
-
-    const response: ScanResponse = {
-      scanResult: finalScore > 0,
+    return new Response(JSON.stringify({
       riskLevel: finalRiskLevel,
-      threatType: detectedThreats[0]?.type || null,
+      detectedThreats: threats,
       score: finalScore,
-      detectedThreats,
-      timestamp: new Date().toISOString(),
-      scanId: crypto.randomUUID(),
-    };
-
-    return new Response(JSON.stringify(response), {
+      inDatabase,
+      aiRating: aiResult.isMalicious ? 'Potentially Malicious' : 'Safe',
+      safeBrowsing: safeBrowsingResult.scam ? 'Dangerous' : 'Safe'
+    }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
+
   } catch (error) {
-    return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : 'Scan failed',
-      }),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    console.error('Scan error:', error);
+    return new Response(JSON.stringify({ error: 'Scan failed' }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 };

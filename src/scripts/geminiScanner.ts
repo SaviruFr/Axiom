@@ -5,7 +5,7 @@ interface GeminiResult {
   reason: string;
 }
 
-export async function analyzeWithGemini(url: string, apiKey: string): Promise<GeminiResult> {
+export async function Gemini(url: string, apiKey: string): Promise<GeminiResult> {
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' });

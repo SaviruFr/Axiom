@@ -3,6 +3,7 @@ import Layout from '@layouts/Layout.astro';
 import { truncateText } from '@scripts/textFormatter';
 import { site } from '@config/site';
 import { formatUrl } from '@scripts/urlFormatter';
+import { formatThreatType } from '@scripts/threatFormatter';
 
 const url = Astro.url.searchParams.get('url');
 if (!url) {
@@ -79,19 +80,14 @@ const formattedUrl = formatUrl(url);
         </p>
       </div>
     </div>
-    <div class="c-border flex flex-col gap-5 font-medium p-5">
-      <p class="font-regular md-text main-color">Report to</p>
-      <div class="flex">
-        <a
-          target="_blank"
-          class="main-btn w-fit mx-auto text-center"
-          href="https://safebrowsing.google.com/safebrowsing/report_phish/">Google</a
-        >
-        <a
-          target="_blank"
-          class="main-btn w-fit mx-auto text-center"
-          href="https://microsoft.com/wdsi/support/report-unsafe-site-guest">Microsoft</a
-        >
+    <div class="c-border p-5 min-h-[6rem] flex flex-col">
+      <p class="font-regular md-text main-color mb-2">Database Check</p>
+      <div class="flex-1 flex items-center">
+        <div class="w-full py-2 animate-pulse flex items-center min-h-[24px]">
+          <div class="h-6 bg-gray-200 rounded-full dark:bg-gray-700 w-32"></div>
+        </div>
+        <p id="database-check" class="font-regular sm-text main-color min-h-[24px] flex items-center">
+        </p>
       </div>
     </div>
   </div>
@@ -108,6 +104,9 @@ const formattedUrl = formatUrl(url);
       riskLevel: string;
       detectedThreats: Threat[];
       score: number;
+      inDatabase: boolean;
+      aiRating: string;
+      safeBrowsing: string;
     }
 
     function updateElement(id: string, content: string) {
@@ -153,28 +152,22 @@ const formattedUrl = formatUrl(url);
 
         const data = (await response.json()) as ScanResult;
 
+        // Update UI elements
         updateElement('risk-level', data.riskLevel);
         updateElement('risk-score', data.score.toString());
+        updateElement('database-check', data.inDatabase ? 'Found in Database' : 'Not Found');
+        updateElement('safe-browsing', data.safeBrowsing);
+        updateElement('ai-rating', data.aiRating);
+        updateElement('threat-type', data.detectedThreats.length > 0 
+          ? data.detectedThreats[0].type 
+          : 'No Known Threats');  // Made "No Threats" more descriptive
 
-        const hasGoogleThreat = data.detectedThreats.some(
-          (t) => t.source === 'Google Safe Browsing'
-        );
-        const hasAIThreat = data.detectedThreats.some((t) => t.source === 'AI Analysis');
-
-        updateElement('safe-browsing', hasGoogleThreat ? 'Dangerous' : 'Safe');
-        updateElement('ai-rating', hasAIThreat ? 'Potentially Malicious' : 'Safe');
-
-        if (data.detectedThreats.length > 0) {
-          const threat = data.detectedThreats[0];
-          updateElement('threat-type', formatThreatType(threat.type));
-        } else {
-          updateElement('threat-type', 'No Threats');
-        }
       } catch (error) {
-        const elements = ['risk-level', 'safe-browsing', 'ai-rating', 'threat-type'];
+        const elements = ['risk-level', 'safe-browsing', 'ai-rating', 'threat-type', 'risk-score', 'database-check'];
         elements.forEach((id) => updateElement(id, 'Scan Failed'));
       }
     }
+    
     fetchResults();
   </script>
 </Layout>

@@ -12,15 +12,18 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
+      "@/*": ["src/*"],
       "@components/*": ["src/components/*"],
       "@layouts/*": ["src/layouts/*"],
       "@css/*": ["src/styles/*"],
       "@data/*": ["src/data/*"],
       "@scripts/*": ["src/scripts/*"],
       "@config/*": ["src/config/*"],
-      "@/*": ["src/*"],
       "@styles/*": ["src/styles/*"],
-      "@list/*": ["src/list/*"]
+      "@list/*": ["src/list/*"],
+      "@db/*": ["src//server/db/*"],
+      "@functions/*": ["src/functions/*"],
+      "@tasks/*": ["src/tasks/*"]
     },
     "typeRoots": ["./node_modules/@types", "./src/types"]
   },

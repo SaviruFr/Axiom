@@ -4,6 +4,7 @@
 interface Env {
   API: string;
   GEMINI_API_KEY: string;
+  NEON_DB: string;
 }
 
 type Runtime = import('@astrojs/cloudflare').Runtime<Env>;

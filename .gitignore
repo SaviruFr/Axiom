@@ -23,3 +23,10 @@ bun.lockb
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+
+# Wrangler
+wrangler.toml
+
+# Server-side files
+/src/server/db/client.ts
+/src/server/db/*.env

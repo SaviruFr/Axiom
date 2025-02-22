@@ -12,11 +12,17 @@ export default defineConfig({
         mode: 'directory',
         platformProxy: {
             enabled: true
+        },
+        runtime: {
+            env: {
+                DATABASE_URL: 'postgresql://neondb_owner:npg_e0liFk3OqbyP@ep-dawn-band-a4v5iq6k-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require'
+            }
         }
     }),
     vite: {
         build: {
             minify: false
-        }
+        },
+        envPrefix: ['NEON_', 'PUBLIC_'],
     }
 });

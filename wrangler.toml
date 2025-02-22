@@ -2,5 +2,8 @@ name = "axiom"
 compatibility_date = "2024-01-01"
 
 [vars]
-API = ""
+API = "postgresql://neondb_owner:password@ep-something.aws.neon.tech/neondb"
 GEMINI_API_KEY = ""
+
+[triggers]
+crons = ["0 */24 * * *"]
