@@ -30,28 +30,28 @@ const randomHolder = getRandomItem(placeholders);
 <script>
   import isURL from 'validator';
 
-  const warning = document.querySelector(".warning");
-  const info = document.querySelector(".info");
-  const form = document.querySelector("form");
-  const input = document.querySelector("input");
+  const warning = document.querySelector('.warning');
+  const info = document.querySelector('.info');
+  const form = document.querySelector('form');
+  const input = document.querySelector('input');
 
   if (form && input && warning && info) {
-    form.addEventListener("submit", (e) => {
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
       const url = input.value;
 
       if (!url) {
-        info.classList.remove("opacity-0");
+        info.classList.remove('opacity-0');
         setTimeout(() => {
-          info.classList.add("opacity-0");
+          info.classList.add('opacity-0');
         }, 3000);
         return;
       }
 
       if (!isURL(url, { require_protocol: true, protocols: ['http', 'https'] })) {
-        warning.classList.remove("opacity-0");
+        warning.classList.remove('opacity-0');
         setTimeout(() => {
-          warning.classList.add("opacity-0");
+          warning.classList.add('opacity-0');
         }, 3000);
         return;
       }
