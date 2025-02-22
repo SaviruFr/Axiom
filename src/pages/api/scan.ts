@@ -6,14 +6,18 @@ import type { ScanResponse, ThreatMatch } from '@/list/scan';
 export const POST: APIRoute = async ({ request, locals }): Promise<Response> => {
   try {
     const { url } = await request.json();
-    
+
     const runtime = locals.runtime;
+    if (!runtime?.env) {
+      throw new Error('Runtime environment not available');
+    }
+
     const safeBrowsingKey = runtime.env.API;
     const geminiKey = runtime.env.GEMINI_API_KEY;
 
 
     if (!safeBrowsingKey || !geminiKey) {
-      throw new Error('API keys not configured in Cloudflare');
+      throw new Error(`API keys not configured (Safe Browsing: ${!!safeBrowsingKey}, Gemini: ${!!geminiKey})`);
     }
 
     if (!url) {

@@ -1,24 +1,13 @@
 /// <reference path="../.astro/types.d.ts" />
 /// <reference types="astro/client" />
 
-interface ImportMetaEnv {
-  readonly API: string;
-  readonly GEMINI_API_KEY: string;
+interface Env {
+  API: string;
+  GEMINI_API_KEY: string;
 }
 
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
-}
-
-type RuntimeConfig = {
-  readonly API: string;
-  readonly GEMINI_API_KEY: string;
-};
+type Runtime = import('@astrojs/cloudflare').Runtime<Env>;
 
 declare namespace App {
-  interface Locals {
-    runtime: {
-      env: RuntimeConfig;
-    };
-  }
+  interface Locals extends Runtime {}
 }
