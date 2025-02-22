@@ -2,9 +2,9 @@
 /// <reference types="astro/client" />
 
 interface Env {
-  API: string;
   GEMINI_API_KEY: string;
-  NEON_DB: string;
+  API: string;
+  DATABASE_URL: string;
 }
 
 type Runtime = import('@astrojs/cloudflare').Runtime<Env>;

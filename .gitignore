@@ -8,7 +8,6 @@ node_modules/
 
 # Environment
 .env
-.env.*
 .dev.vars
 
 # Editor
@@ -26,7 +25,3 @@ pnpm-lock.yaml
 
 # Wrangler
 wrangler.toml
-
-# Server-side files
-/src/server/db/client.ts
-/src/server/db/*.env

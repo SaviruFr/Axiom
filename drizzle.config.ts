@@ -1,12 +1,13 @@
 import { defineConfig } from 'drizzle-kit';
+import { config } from 'dotenv';
+config();
 
-// For CLI commands like drizzle-kit push
-const config = defineConfig({
+export default defineConfig({
   schema: './src/db/schema.ts',
   out: './drizzle',
   dialect: 'postgresql',
   dbCredentials: {
-    url: 'postgresql://neondb_owner:npg_e0liFk3OqbyP@ep-dawn-band-a4v5iq6k-pooler.us-east-1.aws.neon.tech/neondb?sslmode=require',
+    url: process.env.DATABASE_URL || '',
   },
   verbose: true,
   strict: true,
@@ -15,17 +16,3 @@ const config = defineConfig({
     schema: 'public'
   }
 });
-
-// For runtime usage
-export function getRuntimeConfig(context: { locals: { runtime: { env: any } } }) {
-  const { env } = context.locals.runtime;
-  return {
-    ...config,
-    dbCredentials: {
-      url: env.TABA
-    }
-  };
-}
-
-// Default export for drizzle-kit
-export default config;

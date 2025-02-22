@@ -32,16 +32,31 @@ export const POST: APIRoute = async ({ request, locals }): Promise<Response> => 
 
     const inDatabase = results.length > 0;
 
-    // Run AI and Safe Browsing checks
+    // Use Cloudflare environment variables
     const geminiKey = locals.runtime.env.GEMINI_API_KEY;
+    console.log('GEMINI_API_KEY length:', geminiKey?.length); // Debug length without exposing key
+    
+    if (!geminiKey || typeof geminiKey !== 'string' || geminiKey.trim() === '') {
+      throw new Error('Invalid or missing Gemini API key');
+    }
+
+    // Check if the key starts with expected format (usually 'AI')
+    if (!geminiKey.startsWith('AI')) {
+      console.warn('Gemini API key may be malformed - should start with AI');
+    }
+
     const safeBrowsingKey = locals.runtime.env.API;
+    if (!safeBrowsingKey) {
+      throw new Error('Missing Safe Browsing API key');
+    }
 
     const [aiResult, safeBrowsingResult] = await Promise.all([
-      Gemini(formattedUrl, geminiKey),
+      Gemini(formattedUrl, geminiKey.trim()),
       scanUrl(safeBrowsingKey, formattedUrl)
     ]);
 
-    // Determine final risk level and score
+    console.log('AI Analysis Result:', aiResult); // Debug log
+
     let finalScore = inDatabase ? 10 : 0;
     let finalRiskLevel = inDatabase ? 'High Risk' : 'Safe';
     const threats = [];
@@ -53,12 +68,12 @@ export const POST: APIRoute = async ({ request, locals }): Promise<Response> => 
       });
     }
 
-    if (aiResult.isMalicious) {
-      finalScore = Math.max(finalScore, 5);
-      finalRiskLevel = finalScore === 10 ? 'High Risk' : 'Medium Risk';
+    if (aiResult.isMalicious || aiResult.reason !== 'error') {
+      finalScore = Math.max(finalScore, 7); // Increased from 5 to 7
+      finalRiskLevel = finalScore >= 7 ? 'High Risk' : 'Medium Risk';
       threats.push({
         source: 'AI Analysis',
-        type: formatThreatType(aiResult.reason)
+        type: formatThreatType(aiResult.reason.toUpperCase())
       });
     }
 
