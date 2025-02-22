@@ -1,62 +1,67 @@
 ---
-import type { HTMLAttributes } from 'astro/types';
 import placeHolder from '@data/placeholder.json';
-
-interface Props extends HTMLAttributes<'form'> {
-  placeholders?: string[];
-}
-
 function getRandomItem(arr: string[]): string {
   return arr[Math.floor(Math.random() * arr.length)];
 }
-
-const { placeholders = placeHolder, ...attrs } = Astro.props;
-const randomHolder = getRandomItem(placeholders);
+const randomHolder = getRandomItem(placeHolder);
 ---
 
-<form action="/result" method="get" class="flex flex-row" {...attrs}>
+<form
+  action="/result"
+  enctype="application/x-www-form-urlencoded"
+  class="flex flex-col
+  justify-between sm:flex-row gap-5"
+>
   <input
+    class="link focus:outline-none bg-transparent px-5 py-2 w-2/4 max-w-3xl max-md:w-auto"
+    required
+    placeholder={randomHolder}
     type="url"
     name="url"
-    class="px-5 py-2 main-bg c-border md:w-96 w-72 mr-2"
-    placeholder="Enter a website URL"
-    required
   />
-  <button type="submit" class="px-5 py-2 c-border main-hover active:scale-95 transition-all">
-    <img src="./assets/svg/search.svg" class="w-6" alt="search" />
-  </button>
+  <button class="submit main-btn font-medium w-fit" type="submit">Analyze</button>
 </form>
-
 <script>
-  import isURL from 'validator';
+  import validator from 'validator';
 
-  const warning = document.querySelector(".warning");
-  const info = document.querySelector(".info");
-  const form = document.querySelector("form");
-  const input = document.querySelector("input");
+  const warning = document.querySelector('.warning');
+  const info = document.querySelector('.info');
+  const linkInput = document.querySelector('.link') as HTMLInputElement;
+  const form = document.querySelector('form');
+  const submitButton = document.querySelector('.submit');
 
-  if (form && input && warning && info) {
-    form.addEventListener("submit", (e) => {
-      e.preventDefault();
-      const url = input.value;
+  function validateForm(event: Event) {
+    event.preventDefault();
 
-      if (!url) {
-        info.classList.remove("opacity-0");
-        setTimeout(() => {
-          info.classList.add("opacity-0");
-        }, 3000);
-        return;
-      }
+    if (!linkInput) return;
+    const urlString = linkInput.value;
 
-      if (!isURL(url, { require_protocol: true, protocols: ['http', 'https'] })) {
-        warning.classList.remove("opacity-0");
-        setTimeout(() => {
-          warning.classList.add("opacity-0");
-        }, 3000);
-        return;
-      }
-
-      form.submit();
-    });
+    switch (true) {
+      case urlString === '':
+        infoAlert();
+        break;
+      case !validator.isURL(urlString):
+        warningAlert();
+        break;
+      default:
+        form?.submit();
+    }
   }
+
+  function infoAlert() {
+    info?.classList.add('show-info');
+    setTimeout(() => {
+      info?.classList.remove('show-info');
+    }, 2000);
+  }
+
+  
+  function warningAlert() {
+    warning?.classList.add('show-warning');
+    setTimeout(() => {
+      warning?.classList.remove('show-warning');
+    }, 2000);
+  }
+
+  submitButton?.addEventListener('click', validateForm);
 </script>
