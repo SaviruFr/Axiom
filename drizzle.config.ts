@@ -2,7 +2,7 @@ import { defineConfig } from 'drizzle-kit';
 
 // For CLI commands like drizzle-kit push
 const config = defineConfig({
-  schema: './src/server/db/schema.ts',
+  schema: './src/db/schema.ts',
   out: './drizzle',
   dialect: 'postgresql',
   dbCredentials: {

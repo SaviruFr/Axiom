@@ -1,6 +1,6 @@
 import type { APIRoute } from 'astro';
-import { getDb } from '../../server/db/client';
-import { phishingDomains } from '../../server/db/schema';
+import { getDb } from '../../db/client';
+import { phishingDomains } from '../../db/schema';
 import { eq } from 'drizzle-orm';
 import { formatUrl } from '../../scripts/urlFormatter';
 import { Gemini } from '@scripts/geminiScanner';
