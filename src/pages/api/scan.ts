@@ -1,18 +1,25 @@
-import type { APIRoute } from 'astro';
+import type { APIRoute, APIContext } from 'astro';
 import { scanUrl } from '@scripts/safeBrowsing';
+import { analyzeWithGemini } from '@scripts/geminiScanner';
+import type { ScanResponse, ThreatMatch } from '@/list/scan';
 
-export const POST: APIRoute = async ({ request }) => {
-  if (request.headers.get("Content-Type") !== "application/json") {
-    return new Response(JSON.stringify({ error: 'Invalid content type' }), { 
-      status: 400,
-      headers: { 'Content-Type': 'application/json' }
-    });
-  }
-
+export const POST: APIRoute = async ({ request, locals }): Promise<Response> => {
   try {
-    const body = await request.json();
-    const { url } = body;
-    
+    const { url } = await request.json();
+
+    const runtime = locals.runtime;
+    if (!runtime?.env) {
+      throw new Error('Runtime environment not available');
+    }
+
+    const safeBrowsingKey = runtime.env.API;
+    const geminiKey = runtime.env.GEMINI_API_KEY;
+
+
+    if (!safeBrowsingKey || !geminiKey) {
+      throw new Error(`API keys not configured (Safe Browsing: ${!!safeBrowsingKey}, Gemini: ${!!geminiKey})`);
+    }
+
     if (!url) {
       return new Response(JSON.stringify({ error: 'URL is required' }), { 
         status: 400,
@@ -20,26 +27,48 @@ export const POST: APIRoute = async ({ request }) => {
       });
     }
 
-    const apiKey = "AIzaSyDyy43B-HaxvuwP8_IvYyNEdxKrVJF2U4w";
-    if (!apiKey) {
-      throw new Error('API key not configured');
+    const [safeBrowsingResult, geminiResult] = await Promise.all([
+      scanUrl(safeBrowsingKey, url),
+      analyzeWithGemini(url, geminiKey)
+    ]);
+
+    let finalScore = 0;
+    let finalRiskLevel: ScanResponse['riskLevel'] = 'Safe';
+    const detectedThreats: ThreatMatch[] = [];
+
+    if (safeBrowsingResult.scam) {
+      finalScore = 10;
+      finalRiskLevel = 'High Risk';
+      detectedThreats.push(...safeBrowsingResult.threats.map(t => ({
+        source: 'Google Safe Browsing' as const,
+        type: t.type
+      })));
     }
 
-    const result = await scanUrl(apiKey, url);
-    if (!result) {
-      throw new Error('Scan failed - no result');
+    if (geminiResult.isMalicious) {
+      finalScore = Math.max(finalScore, 5);
+      finalRiskLevel = finalScore === 10 ? 'High Risk' : 'Medium Risk';
+      detectedThreats.push({
+        source: 'AI Analysis' as const,
+        type: geminiResult.reason
+      });
     }
 
-    return new Response(JSON.stringify({
-      scanResult: result.scam,
-      threatType: result.threats?.[0]?.type || null,
-      score: result.scam ? 10 : 0
-    }), {
+    const response: ScanResponse = {
+      scanResult: finalScore > 0,
+      riskLevel: finalRiskLevel,
+      threatType: detectedThreats[0]?.type || null,
+      score: finalScore,
+      detectedThreats,
+      timestamp: new Date().toISOString(),
+      scanId: crypto.randomUUID()
+    };
+
+    return new Response(JSON.stringify(response), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    console.error('Scan API error:', error);
     return new Response(JSON.stringify({ 
       error: error instanceof Error ? error.message : 'Scan failed'
     }), {

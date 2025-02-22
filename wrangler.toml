@@ -1,0 +1,6 @@
+name = "axiom"
+compatibility_date = "2024-01-01"
+
+[vars]
+API = ""
+GEMINI_API_KEY = ""

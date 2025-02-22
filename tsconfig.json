@@ -18,8 +18,11 @@
       "@data/*": ["src/data/*"],
       "@scripts/*": ["src/scripts/*"],
       "@config/*": ["src/config/*"],
-      "@/*": ["src/*"]
-    }
+      "@/*": ["src/*"],
+      "@styles/*": ["src/styles/*"],
+      "@list/*": ["src/list/*"]
+    },
+    "typeRoots": ["./node_modules/@types", "./src/types"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
