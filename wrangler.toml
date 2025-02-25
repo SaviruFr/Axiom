@@ -2,9 +2,6 @@ name = "axiom"
 compatibility_date = "2024-01-01"
 
 [vars]
-GEMINI_API_KEY = ""
-API = ""
-DATABASE_URL = ""
 
 [triggers]
 crons = ["0 */24 * * *"]
