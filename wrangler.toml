@@ -2,4 +2,4 @@ name = "axiom"
 compatibility_date = "2024-01-01"
 
 [triggers]
-crons = ["0 */24 * * *"]
+crons = ["*/10 * * * *"]

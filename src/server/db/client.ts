@@ -9,11 +9,11 @@ export function getDb(context: { locals: { runtime: { env: any } } }) {
     if (!_db) {
       const { env } = context.locals.runtime;
 
-      if (!env.TABA) {
-        throw new Error('TABA not found in runtime environment');
+      if (!env.DATABASE_URL) {
+        throw new Error('Database URL not found in runtime environment');
       }
 
-      const sql = neon(env.TABA);
+      const sql = neon(env.DATABASE_URL);
       _db = drizzle(sql, { schema });
     }
     return _db;
