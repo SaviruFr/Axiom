@@ -1,5 +1,5 @@
 name = "axiom"
-compatibility_date = "2024-01-01"
+compatibility_date = "2025-02-13"
 
 [triggers]
-crons = ["*/10 * * * *"]
+crons = ["0 */24 * * *"]
