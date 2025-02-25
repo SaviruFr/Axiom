@@ -1,11 +1,11 @@
 import type { APIRoute } from 'astro';
-import { getDb } from '../../db/client';
-import { phishingDomains } from '../../db/schema';
+import { getDb } from '@db/client';
+import { phishingDomains } from '@db/schema';
 import { eq } from 'drizzle-orm';
-import { formatUrl } from '../../scripts/urlFormatter';
+import { formatUrl } from '@scripts/urlFormatter';
 import { Gemini } from '@scripts/geminiScanner';
 import { scanUrl } from '@scripts/safeBrowsing';
-import { formatThreatType } from '../../scripts/threatFormatter';
+import { formatThreatType } from '@scripts/threatFormatter';
 
 export const POST: APIRoute = async ({ request, locals }): Promise<Response> => {
   try {
@@ -21,9 +21,6 @@ export const POST: APIRoute = async ({ request, locals }): Promise<Response> => 
     const formattedUrl = formatUrl(url);
     const domain = new URL(formattedUrl).hostname;
 
-    console.log('Checking domain:', domain);
-    console.log('Available runtime env:', Object.keys(locals.runtime.env));
-
     const db = getDb({ locals });
     const results = await db.select()
       .from(phishingDomains)
@@ -31,13 +28,7 @@ export const POST: APIRoute = async ({ request, locals }): Promise<Response> => 
 
     const inDatabase = results.length > 0;
 
-    // Use Cloudflare environment variables
     const geminiKey = locals.runtime.env.GEMINI_API_KEY;
-    console.log('Debug - API key info:', {
-      exists: !!geminiKey,
-      length: geminiKey?.length,
-      prefix: geminiKey?.substring(0, 2)
-    });
 
     if (!geminiKey || geminiKey.length < 30) {
       throw new Error(`Invalid Gemini API key configuration: ${!!geminiKey}`);
@@ -53,11 +44,6 @@ export const POST: APIRoute = async ({ request, locals }): Promise<Response> => 
       scanUrl(safeBrowsingKey, formattedUrl)
     ]);
 
-    console.log('Debug - Analysis results:', {
-      ai: aiResult,
-      safeBrowsing: !!safeBrowsingResult.scam
-    });
-
     let finalScore = inDatabase ? 10 : 0;
     let finalRiskLevel = inDatabase ? 'High Risk' : 'Safe';
     const threats = [];
@@ -70,7 +56,7 @@ export const POST: APIRoute = async ({ request, locals }): Promise<Response> => 
     }
 
     if (aiResult.isMalicious || aiResult.reason !== 'error') {
-      finalScore = Math.max(finalScore, 7); // Increased from 5 to 7
+      finalScore = Math.max(finalScore, 7);
       finalRiskLevel = finalScore >= 7 ? 'High Risk' : 'Medium Risk';
       threats.push({
         source: 'AI Analysis',

@@ -151,8 +151,6 @@ const formattedUrl = formatUrl(url);
         if (!response.ok) throw new Error('Scan failed');
 
         const data = (await response.json()) as ScanResult;
-
-        // Update UI elements
         updateElement('risk-level', data.riskLevel);
         updateElement('risk-score', data.score.toString());
         updateElement('database-check', data.inDatabase ? 'Found in Database' : 'Not Found');
@@ -160,7 +158,7 @@ const formattedUrl = formatUrl(url);
         updateElement('ai-rating', data.aiRating);
         updateElement('threat-type', data.detectedThreats.length > 0 
           ? data.detectedThreats[0].type 
-          : 'No Known Threats');  // Made "No Threats" more descriptive
+          : 'No Known Threats'); 
 
       } catch (error) {
         const elements = ['risk-level', 'safe-browsing', 'ai-rating', 'threat-type', 'risk-score', 'database-check'];

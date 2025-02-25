@@ -17,7 +17,6 @@ export async function fetchPhishingLists() {
         .filter(line => line.length > 0);
 
       lines.forEach(line => domains.add(line));
-      console.log(`Fetched ${lines.length} domains from ${url}`);
     } catch (error) {
       console.error(`Failed to fetch from ${url}:`, error);
     }

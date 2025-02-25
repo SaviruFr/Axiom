@@ -21,7 +21,8 @@
       "@config/*": ["src/config/*"],
       "@styles/*": ["src/styles/*"],
       "@list/*": ["src/list/*"],
-      "@db/*": ["src//server/db/*"],
+      "@db/*": ["src/server/db/*"],
+      "@services/*": ["src/server/services/*"],
       "@functions/*": ["src/functions/*"],
       "@tasks/*": ["src/tasks/*"]
     },

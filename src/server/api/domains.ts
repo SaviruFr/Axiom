@@ -1,6 +1,6 @@
 import type { APIContext } from 'astro';
-import { getDb } from '../db/client';
-import { phishingDomains } from '../db/schema';
+import { getDb } from '@db/client';
+import { phishingDomains } from '@db/schema';
 
 export async function getDomains(context: APIContext) {
   try {

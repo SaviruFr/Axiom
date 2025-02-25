@@ -7,7 +7,6 @@ interface GeminiResult {
 
 export async function Gemini(url: string, apiKey: string): Promise<GeminiResult> {
   try {
-    // Validate API key
     if (!apiKey || apiKey.length < 30) {
       console.error('Invalid API key format:', { length: apiKey?.length });
       return { isMalicious: false, reason: 'invalid-key' };
@@ -37,11 +36,6 @@ REASON: phishing/scam/malware/suspicious/typosquatting`;
 
     const result = await model.generateContent(prompt);
     
-    // Updated response logging without status
-    console.log('Gemini response:', {
-      response: result.response?.text(),
-      hasResponse: !!result.response
-    });
 
     if (!result.response) {
       return { isMalicious: false, reason: 'no-response' };
@@ -59,16 +53,13 @@ REASON: phishing/scam/malware/suspicious/typosquatting`;
     const isMalicious = maliciousMatch[1].toLowerCase() === 'true';
     const reason = reasonMatch[1].toLowerCase();
 
-    // Log the parsed result
-    console.log('Parsed Gemini result:', { isMalicious, reason });
-
     return { 
       isMalicious, 
       reason: ['phishing', 'scam', 'malware', 'suspicious', 'typosquatting'].includes(reason) 
         ? reason 
         : 'suspicious'
     };
-  } catch (error: any) { // Type as any for error handling
+  } catch (error: any) { 
     console.error('Gemini error:', {
       message: error?.message,
       name: error?.name,
