@@ -7,17 +7,10 @@ interface Env {
   DATABASE_URL: string;
 }
 
-type Runtime = import('@astrojs/cloudflare').Runtime<Env>;
+type Runtime = import('@astrojs/cloudflare').RuntimeInstance<Env>;
 
 declare namespace App {
-  interface Locals extends Runtime {}
-}
-
-interface ImportMetaEnv {
-  readonly DATABASE_URL: string;
-  readonly GEMINI_API_KEY: string;
-}
-
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
+  interface Locals {
+    runtime: Runtime;
+  }
 }

@@ -6,11 +6,11 @@ let _db: ReturnType<typeof drizzle> | null = null;
 
 export function getDb({ locals }: { locals: App.Locals }) {
   if (!_db) {
-    const { env } = locals.runtime;
-    if (!env.DATABASE_URL) {
+    const DATABASE_URL = locals.runtime.DATABASE_URL;
+    if (!DATABASE_URL) {
       throw new Error('DATABASE_URL not found in runtime environment');
     }
-    const sql = neon(env.DATABASE_URL);
+    const sql = neon(DATABASE_URL);
     _db = drizzle(sql, { schema });
   }
   return _db;
