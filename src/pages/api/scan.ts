@@ -33,15 +33,14 @@ export const POST: APIRoute = async ({ request, locals }): Promise<Response> => 
 
     // Use Cloudflare environment variables
     const geminiKey = locals.runtime.env.GEMINI_API_KEY;
-    console.log('GEMINI_API_KEY length:', geminiKey?.length); // Debug length without exposing key
-    
-    if (!geminiKey || typeof geminiKey !== 'string' || geminiKey.trim() === '') {
-      throw new Error('Invalid or missing Gemini API key');
-    }
+    console.log('Debug - API key info:', {
+      exists: !!geminiKey,
+      length: geminiKey?.length,
+      prefix: geminiKey?.substring(0, 2)
+    });
 
-    // Check if the key starts with expected format (usually 'AI')
-    if (!geminiKey.startsWith('AI')) {
-      console.warn('Gemini API key may be malformed - should start with AI');
+    if (!geminiKey || geminiKey.length < 30) {
+      throw new Error(`Invalid Gemini API key configuration: ${!!geminiKey}`);
     }
 
     const safeBrowsingKey = locals.runtime.env.API;
@@ -50,11 +49,14 @@ export const POST: APIRoute = async ({ request, locals }): Promise<Response> => 
     }
 
     const [aiResult, safeBrowsingResult] = await Promise.all([
-      Gemini(formattedUrl, geminiKey.trim()),
+      Gemini(formattedUrl, geminiKey),
       scanUrl(safeBrowsingKey, formattedUrl)
     ]);
 
-    console.log('AI Analysis Result:', aiResult); // Debug log
+    console.log('Debug - Analysis results:', {
+      ai: aiResult,
+      safeBrowsing: !!safeBrowsingResult.scam
+    });
 
     let finalScore = inDatabase ? 10 : 0;
     let finalRiskLevel = inDatabase ? 'High Risk' : 'Safe';
