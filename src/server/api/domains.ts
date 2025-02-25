@@ -14,11 +14,12 @@ export async function getDomains(context: APIContext) {
 export async function addDomain(context: APIContext, domain: string) {
   try {
     const db = getDb(context);
-    await db.insert(phishingDomains)
+    await db
+      .insert(phishingDomains)
       .values({ domain })
       .onConflictDoUpdate({
         target: phishingDomains.domain,
-        set: { lastSeen: new Date() }
+        set: { lastSeen: new Date() },
       });
     return true;
   } catch (error) {

@@ -13,7 +13,7 @@ export async function Gemini(url: string, apiKey: string): Promise<GeminiResult>
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ 
+    const model = genAI.getGenerativeModel({
       model: 'gemini-pro',
       generationConfig: {
         temperature: 0,
@@ -35,7 +35,6 @@ MALICIOUS: true/false
 REASON: phishing/scam/malware/suspicious/typosquatting`;
 
     const result = await model.generateContent(prompt);
-    
 
     if (!result.response) {
       return { isMalicious: false, reason: 'no-response' };
@@ -53,17 +52,17 @@ REASON: phishing/scam/malware/suspicious/typosquatting`;
     const isMalicious = maliciousMatch[1].toLowerCase() === 'true';
     const reason = reasonMatch[1].toLowerCase();
 
-    return { 
-      isMalicious, 
-      reason: ['phishing', 'scam', 'malware', 'suspicious', 'typosquatting'].includes(reason) 
-        ? reason 
-        : 'suspicious'
+    return {
+      isMalicious,
+      reason: ['phishing', 'scam', 'malware', 'suspicious', 'typosquatting'].includes(reason)
+        ? reason
+        : 'suspicious',
     };
-  } catch (error: any) { 
+  } catch (error: any) {
     console.error('Gemini error:', {
       message: error?.message,
       name: error?.name,
-      details: error?.toString()
+      details: error?.toString(),
     });
     return { isMalicious: false, reason: 'error' };
   }
