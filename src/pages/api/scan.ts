@@ -18,7 +18,6 @@ export const POST: APIRoute = async ({ request, locals }): Promise<Response> => 
       });
     }
 
-    // Format URL and extract domain
     const formattedUrl = formatUrl(url);
     const domain = new URL(formattedUrl).hostname;
 
