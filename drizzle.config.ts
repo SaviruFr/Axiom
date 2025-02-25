@@ -13,6 +13,6 @@ export default defineConfig({
   strict: true,
   migrations: {
     table: '__drizzle_migrations',
-    schema: 'public'
-  }
+    schema: 'public',
+  },
 });

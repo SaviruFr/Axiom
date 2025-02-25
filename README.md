@@ -42,8 +42,8 @@ npm run preview
 ## API Integration
 
 ```typescript
-GOOGLE_SAFE_BROWSING_KEY=your_key
-GEMINI_API_KEY=your_key
+GOOGLE_SAFE_BROWSING_KEY = your_key;
+GEMINI_API_KEY = your_key;
 ```
 
 ## Development Guidelines

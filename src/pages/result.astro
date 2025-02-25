@@ -86,7 +86,10 @@ const formattedUrl = formatUrl(url);
         <div class="w-full py-2 animate-pulse flex items-center min-h-[24px]">
           <div class="h-6 bg-gray-200 rounded-full dark:bg-gray-700 w-32"></div>
         </div>
-        <p id="database-check" class="font-regular sm-text main-color min-h-[24px] flex items-center">
+        <p
+          id="database-check"
+          class="font-regular sm-text main-color min-h-[24px] flex items-center"
+        >
         </p>
       </div>
     </div>
@@ -156,16 +159,23 @@ const formattedUrl = formatUrl(url);
         updateElement('database-check', data.inDatabase ? 'Found in Database' : 'Not Found');
         updateElement('safe-browsing', data.safeBrowsing);
         updateElement('ai-rating', data.aiRating);
-        updateElement('threat-type', data.detectedThreats.length > 0 
-          ? data.detectedThreats[0].type 
-          : 'No Known Threats'); 
-
+        updateElement(
+          'threat-type',
+          data.detectedThreats.length > 0 ? data.detectedThreats[0].type : 'No Known Threats'
+        );
       } catch (error) {
-        const elements = ['risk-level', 'safe-browsing', 'ai-rating', 'threat-type', 'risk-score', 'database-check'];
+        const elements = [
+          'risk-level',
+          'safe-browsing',
+          'ai-rating',
+          'threat-type',
+          'risk-score',
+          'database-check',
+        ];
         elements.forEach((id) => updateElement(id, 'Scan Failed'));
       }
     }
-    
+
     fetchResults();
   </script>
 </Layout>
