@@ -26,7 +26,7 @@ class WorkerStateManager {
     currentSource: 0,
     totalSources: 0,
     sourceProgress: '',
-    processingDetails: ''
+    processingDetails: '',
   };
 
   private encoder = new TextEncoder();
@@ -44,19 +44,17 @@ class WorkerStateManager {
     const stream = new ReadableStream({
       start: (c) => {
         controller = c;
-        controller.enqueue(
-          this.encoder.encode(`data: ${JSON.stringify(this.state)}\n\n`)
-        );
+        controller.enqueue(this.encoder.encode(`data: ${JSON.stringify(this.state)}\n\n`));
       },
-      cancel: () => {}
+      cancel: () => {},
     });
 
     return new Response(stream, {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-      }
+        Connection: 'keep-alive',
+      },
     });
   }
 }
@@ -68,35 +66,37 @@ export default {
     const state = stateManager.getState();
     if (state.isProcessing) return;
 
-    const isScheduled = event.cron === "0 0 * * *";
-    
+    const isScheduled = event.cron === '0 0 * * *';
+
     try {
       // Attempt initialization if needed
       if (!state.lastUpdate || state.lastUpdate === 'Never') {
-        await stateManager.update({ 
+        await stateManager.update({
           isProcessing: true,
-          currentStatus: '🚀 Performing first-time initialization...'
+          currentStatus: '🚀 Performing first-time initialization...',
         });
-        
+
         await initializeDatabase(env);
-        
+
         await stateManager.update({
           lastUpdate: new Date().toISOString(),
           currentStatus: '✨ Initial setup complete',
-          isProcessing: false
+          isProcessing: false,
         });
         return;
       }
 
-      await stateManager.update({ 
-        isProcessing: true, 
-        currentStatus: isScheduled ? '🕛 Starting scheduled midnight update...' : 'Starting manual update...' 
+      await stateManager.update({
+        isProcessing: true,
+        currentStatus: isScheduled
+          ? '🕛 Starting scheduled midnight update...'
+          : 'Starting manual update...',
       });
 
       const domains = await fetchPhishingLists(async (status, details) => {
         const updates: Partial<WorkerState> = {
           currentStatus: status,
-          totalDomains: details?.uniqueDomains || 0
+          totalDomains: details?.uniqueDomains || 0,
         };
 
         if (details) {
@@ -121,14 +121,14 @@ export default {
       let newCount = 0;
 
       // Deduplicate domains before processing
-      const uniqueDomains = [...new Set(domains.map(d => d.toLowerCase()))];
-      
+      const uniqueDomains = [...new Set(domains.map((d) => d.toLowerCase()))];
+
       for (let i = 0; i < uniqueDomains.length; i += batchSize) {
         const batch = uniqueDomains.slice(i, i + batchSize);
-        const values = batch.map(domain => ({
+        const values = batch.map((domain) => ({
           domain,
           dateAdded: new Date(),
-          lastSeen: new Date()
+          lastSeen: new Date(),
         }));
 
         const result = await db
@@ -136,55 +136,51 @@ export default {
           .values(values)
           .onConflictDoUpdate({
             target: phishingDomains.domain,
-            set: { 
-              lastSeen: new Date() 
-            }
+            set: {
+              lastSeen: new Date(),
+            },
           })
           .returning({
             domain: phishingDomains.domain,
             dateAdded: phishingDomains.dateAdded,
-            lastSeen: phishingDomains.lastSeen
+            lastSeen: phishingDomains.lastSeen,
           });
 
-        const batchNewCount = result.filter(r => 
-          r.dateAdded && r.lastSeen && 
-          r.dateAdded.getTime() === r.lastSeen.getTime()
+        const batchNewCount = result.filter(
+          (r) => r.dateAdded && r.lastSeen && r.dateAdded.getTime() === r.lastSeen.getTime()
         ).length;
 
         newCount += batchNewCount;
-        updatedCount += (result.length - batchNewCount);
-        
+        updatedCount += result.length - batchNewCount;
+
         processedBatches++;
         await stateManager.update({
           processedBatches,
-          currentStatus: `Batch ${processedBatches}: ${newCount} new, ${updatedCount} updated`
+          currentStatus: `Batch ${processedBatches}: ${newCount} new, ${updatedCount} updated`,
         });
 
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
 
       await stateManager.update({
         lastUpdate: new Date().toISOString(),
         currentStatus: `✨ ${isScheduled ? 'Scheduled' : 'Manual'} update complete: ${newCount} new targets, ${updatedCount} updated`,
-        isProcessing: false
+        isProcessing: false,
       });
 
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
-      await db
-        .delete(phishingDomains)
-        .where(sql`${phishingDomains.lastSeen} < ${thirtyDaysAgo}`);
 
+      await db.delete(phishingDomains).where(sql`${phishingDomains.lastSeen} < ${thirtyDaysAgo}`);
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
       await stateManager.update({
         currentStatus: `❌ ${isScheduled ? 'Scheduled' : 'Manual'} update failed: ${error.message}`,
-        isProcessing: false
+        isProcessing: false,
       });
       console.error('Task failed:', {
         message: error.message,
-        stack: error.stack
+        stack: error.stack,
       });
     }
   },
@@ -203,10 +199,9 @@ export default {
     }
 
     if (url.pathname === '/status') {
-      return new Response(
-        JSON.stringify(stateManager.getState()),
-        { headers: { 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify(stateManager.getState()), {
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     if (url.pathname === '/status-stream') {
@@ -216,11 +211,7 @@ export default {
     if (url.pathname === '/trigger-update') {
       try {
         ctx.waitUntil(
-          this.scheduled(
-            { type: 'scheduled', cron: 'manual', scheduledTime: Date.now() },
-            env,
-            ctx
-          )
+          this.scheduled({ type: 'scheduled', cron: 'manual', scheduledTime: Date.now() }, env, ctx)
         );
         return new Response('Update triggered');
       } catch (error) {
@@ -229,7 +220,8 @@ export default {
     }
 
     if (url.pathname === '/') {
-      return new Response(`
+      return new Response(
+        `
         <!DOCTYPE html>
         <html lang="en">
           <head>
@@ -384,11 +376,13 @@ export default {
             </script>
           </body>
         </html>
-      `, {
-        headers: { 'Content-Type': 'text/html' }
-      });
+      `,
+        {
+          headers: { 'Content-Type': 'text/html' },
+        }
+      );
     }
 
     return new Response('Not found', { status: 404 });
-  }
+  },
 };

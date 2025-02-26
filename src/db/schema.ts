@@ -8,9 +8,7 @@ export const phishingDomains = pgTable(
     dateAdded: timestamp('date_added').notNull().defaultNow(),
     lastSeen: timestamp('last_seen').notNull().defaultNow(),
   },
-  (table) => [
-    uniqueIndex('phishing_domains_domain_unique_idx').on(table.domain)
-  ]
+  (table) => [uniqueIndex('phishing_domains_domain_unique_idx').on(table.domain)]
 );
 
 export type PhishingDomain = InferSelectModel<typeof phishingDomains>;
