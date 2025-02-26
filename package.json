@@ -8,6 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
+    "init-db": "tsx src/server/db/init.ts",
+    "update-db": "tsx src/server/services/dbUpdater.ts",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,md,mdx,astro,json,css,scss}\""
   },
   "dependencies": {
@@ -20,7 +22,8 @@
     "astro-compressor": "^1.0.0",
     "astro-robots-txt": "^1.0.0",
     "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.40.0",
+    "drizzle-orm": "^0.39.3",
+    "node-cron": "^3.0.3",
     "tailwindcss": "^3.4.1",
     "validator": "^13.12.0"
   },
@@ -39,6 +42,7 @@
     "safe browsing"
   ],
   "devDependencies": {
+    "@types/node-cron": "^3.0.11",
     "@types/validator": "^13.12.2",
     "drizzle-kit": "^0.30.4",
     "prettier": "^3.5.0",

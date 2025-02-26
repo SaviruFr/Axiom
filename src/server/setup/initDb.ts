@@ -7,8 +7,7 @@ async function initializeDatabase(env: Env) {
 
   try {
     const db = getDb({ locals: { runtime: { env } } });
-
-    // Check if database is empty
+    
     const existing = await db.select().from(phishingDomains).limit(1);
     if (existing.length > 0) {
       console.log('Database already initialized, skipping...');
@@ -20,8 +19,7 @@ async function initializeDatabase(env: Env) {
     });
 
     console.log(`Found ${domains.length} domains to insert`);
-
-    // Insert in batches
+    
     const batchSize = 500;
     for (let i = 0; i < domains.length; i += batchSize) {
       const batch = domains.slice(i, i + batchSize);
