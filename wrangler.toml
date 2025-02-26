@@ -1,0 +1,10 @@
+name = "axiom"
+main = "src/workers/scheduled.ts"
+
+[triggers]
+# Run at midnight UTC
+crons = ["0 0 * * *"]
+
+[[routes]]
+pattern = "/trigger-update"
+custom_domain = true
