@@ -4,10 +4,10 @@ import { phishingDomains } from '@db/schema';
 
 async function initializeDatabase(env: Env) {
   console.log('Starting initial database population...');
-  
+
   try {
     const db = getDb({ locals: { runtime: { env } } });
-    
+
     // Check if database is empty
     const existing = await db.select().from(phishingDomains).limit(1);
     if (existing.length > 0) {
@@ -20,20 +20,22 @@ async function initializeDatabase(env: Env) {
     });
 
     console.log(`Found ${domains.length} domains to insert`);
-    
+
     // Insert in batches
     const batchSize = 500;
     for (let i = 0; i < domains.length; i += batchSize) {
       const batch = domains.slice(i, i + batchSize);
-      await db
-        .insert(phishingDomains)
-        .values(batch.map(domain => ({
+      await db.insert(phishingDomains).values(
+        batch.map((domain) => ({
           domain: domain.toLowerCase(),
           dateAdded: new Date(),
-          lastSeen: new Date()
-        })));
-      
-      console.log(`Inserted batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(domains.length/batchSize)}`);
+          lastSeen: new Date(),
+        }))
+      );
+
+      console.log(
+        `Inserted batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(domains.length / batchSize)}`
+      );
     }
 
     console.log('Initial database population complete!');
