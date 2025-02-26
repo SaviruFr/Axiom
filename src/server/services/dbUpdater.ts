@@ -12,7 +12,7 @@ config(); // Load environment variables
 const env: Env = {
   GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
   API: process.env.API || '',
-  DATABASE_URL: process.env.DATABASE_URL || ''
+  DATABASE_URL: process.env.DATABASE_URL || '',
 };
 
 class DatabaseUpdater {
@@ -30,12 +30,12 @@ class DatabaseUpdater {
 
       // Fetch and deduplicate domains
       const domains = await fetchPhishingLists();
-      const uniqueDomains = [...new Set(domains.map(d => d.toLowerCase()))];
+      const uniqueDomains = [...new Set(domains.map((d) => d.toLowerCase()))];
       console.log(`Found ${uniqueDomains.length} unique domains`);
 
       // Connect to database
       const db = getDb({ locals: { runtime: { env } } });
-      
+
       // Process in batches
       const batchSize = 500;
       let processed = 0;
@@ -44,14 +44,16 @@ class DatabaseUpdater {
         const batch = uniqueDomains.slice(i, i + batchSize);
         await db
           .insert(phishingDomains)
-          .values(batch.map(domain => ({
-            domain,
-            dateAdded: new Date(),
-            lastSeen: new Date()
-          })))
+          .values(
+            batch.map((domain) => ({
+              domain,
+              dateAdded: new Date(),
+              lastSeen: new Date(),
+            }))
+          )
           .onConflictDoUpdate({
             target: phishingDomains.domain,
-            set: { lastSeen: new Date() }
+            set: { lastSeen: new Date() },
           });
 
         processed += batch.length;
@@ -61,15 +63,14 @@ class DatabaseUpdater {
       // Cleanup old entries
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      
+
       const result = await db
         .delete(phishingDomains)
         .where(sql`${phishingDomains.lastSeen} < ${thirtyDaysAgo}`)
         .returning();
-        
+
       console.log(`Cleaned up ${result.length} old entries`);
       console.log(`Update completed at ${new Date().toISOString()}`);
-
     } catch (error) {
       console.error('Database update failed:', error);
     } finally {
@@ -81,7 +82,7 @@ class DatabaseUpdater {
     try {
       // Initialize database first
       await initializeDatabase(env);
-      
+
       // Run initial update
       await this.updateDatabase();
 

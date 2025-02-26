@@ -4,14 +4,14 @@ import { sql } from 'drizzle-orm';
 
 export async function initializeDatabase(env: Env) {
   console.log('Starting database initialization...');
-  
+
   try {
     const db = getDb({ locals: { runtime: { env } } });
-    
+
     // Check if table exists
     const result = await db.select().from(phishingDomains).limit(1);
     console.log('Database connection successful');
-    
+
     if (result.length > 0) {
       console.log('Database already initialized');
       return;

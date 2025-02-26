@@ -20,39 +20,38 @@ export default {
 
       const domains = await fetchPhishingLists();
       const db = getDb({ locals: { runtime: { env } } });
-      
+
       const batchSize = 500;
-      const uniqueDomains = [...new Set(domains.map(d => d.toLowerCase()))];
+      const uniqueDomains = [...new Set(domains.map((d) => d.toLowerCase()))];
 
       for (let i = 0; i < uniqueDomains.length; i += batchSize) {
         const batch = uniqueDomains.slice(i, i + batchSize);
         await db
           .insert(phishingDomains)
-          .values(batch.map(domain => ({
-            domain,
-            dateAdded: new Date(),
-            lastSeen: new Date()
-          })))
+          .values(
+            batch.map((domain) => ({
+              domain,
+              dateAdded: new Date(),
+              lastSeen: new Date(),
+            }))
+          )
           .onConflictDoUpdate({
             target: phishingDomains.domain,
-            set: { lastSeen: new Date() }
+            set: { lastSeen: new Date() },
           });
       }
 
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      await db
-        .delete(phishingDomains)
-        .where(sql`${phishingDomains.lastSeen} < ${thirtyDaysAgo}`);
+      await db.delete(phishingDomains).where(sql`${phishingDomains.lastSeen} < ${thirtyDaysAgo}`);
 
       lastUpdate = new Date();
       isFirstRun = false;
       console.log(`Update completed at ${lastUpdate.toISOString()}`);
-
     } catch (error) {
       console.error('Update failed:', error);
     } finally {
       isProcessing = false;
     }
-  }
+  },
 };
