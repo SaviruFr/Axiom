@@ -11,12 +11,12 @@
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,md,mdx,astro,json,css,scss}\""
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^10.4.1",
+    "@astrojs/cloudflare": "^12.0.0",
     "@astrojs/sitemap": "^3.0.5",
     "@astrojs/tailwind": "^6.0.0",
     "@google/generative-ai": "^0.22.0",
     "@neondatabase/serverless": "^0.10.4",
-    "astro": "^4.15.6",
+    "astro": "^5.0.0",
     "astro-compressor": "^1.0.0",
     "astro-robots-txt": "^1.0.0",
     "dotenv": "^16.4.7",
