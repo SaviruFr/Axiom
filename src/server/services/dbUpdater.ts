@@ -8,6 +8,13 @@ import { initializeDatabase } from '../db/init';
 
 config(); // Load environment variables
 
+// Convert process.env to Cloudflare-style env
+const env: Env = {
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
+  API: process.env.API || '',
+  DATABASE_URL: process.env.DATABASE_URL || ''
+};
+
 class DatabaseUpdater {
   private isRunning = false;
 
@@ -27,7 +34,7 @@ class DatabaseUpdater {
       console.log(`Found ${uniqueDomains.length} unique domains`);
 
       // Connect to database
-      const db = getDb({ locals: { runtime: { env: process.env } } });
+      const db = getDb({ locals: { runtime: { env } } });
       
       // Process in batches
       const batchSize = 500;
@@ -73,7 +80,7 @@ class DatabaseUpdater {
   async start() {
     try {
       // Initialize database first
-      await initializeDatabase();
+      await initializeDatabase(env);
       
       // Run initial update
       await this.updateDatabase();
@@ -93,4 +100,4 @@ class DatabaseUpdater {
 }
 
 // Start the updater
-new DatabaseUpdater().start();
+new DatabaseUpdater().start().catch(console.error);

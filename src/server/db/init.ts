@@ -1,15 +1,12 @@
 import { getDb } from './client';
 import { phishingDomains } from './schema';
 import { sql } from 'drizzle-orm';
-import { config } from 'dotenv';
 
-config(); // Load environment variables
-
-async function initializeDatabase() {
+export async function initializeDatabase(env: Env) {
   console.log('Starting database initialization...');
   
   try {
-    const db = getDb({ locals: { runtime: { env: process.env } } });
+    const db = getDb({ locals: { runtime: { env } } });
     
     // Check if table exists
     const result = await db.select().from(phishingDomains).limit(1);
@@ -29,13 +26,11 @@ async function initializeDatabase() {
     console.log('Database initialized successfully');
   } catch (error) {
     console.error('Failed to initialize database:', error);
-    process.exit(1);
+    throw error;
   }
 }
 
-// Run if called directly
-if (require.main === module) {
-  initializeDatabase();
+// For direct execution
+if (import.meta.url === import.meta.resolve('./init.ts')) {
+  initializeDatabase(process.env as unknown as Env).catch(console.error);
 }
-
-export { initializeDatabase };
