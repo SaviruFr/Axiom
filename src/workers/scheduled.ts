@@ -2,6 +2,7 @@ import { fetchPhishingLists } from '@server/services/phishing';
 import { getDb } from '@db/client';
 import { phishingDomains } from '@db/schema';
 import { sql } from 'drizzle-orm';
+import { initializeDatabase } from '@server/setup/initDb';
 
 type WorkerState = {
   currentStatus: string;
@@ -70,6 +71,23 @@ export default {
     const isScheduled = event.cron === "0 0 * * *";
     
     try {
+      // Attempt initialization if needed
+      if (!state.lastUpdate || state.lastUpdate === 'Never') {
+        await stateManager.update({ 
+          isProcessing: true,
+          currentStatus: '🚀 Performing first-time initialization...'
+        });
+        
+        await initializeDatabase(env);
+        
+        await stateManager.update({
+          lastUpdate: new Date().toISOString(),
+          currentStatus: '✨ Initial setup complete',
+          isProcessing: false
+        });
+        return;
+      }
+
       await stateManager.update({ 
         isProcessing: true, 
         currentStatus: isScheduled ? '🕛 Starting scheduled midnight update...' : 'Starting manual update...' 
@@ -102,10 +120,13 @@ export default {
       let updatedCount = 0;
       let newCount = 0;
 
-      for (let i = 0; i < domains.length; i += batchSize) {
-        const batch = domains.slice(i, i + batchSize);
+      // Deduplicate domains before processing
+      const uniqueDomains = [...new Set(domains.map(d => d.toLowerCase()))];
+      
+      for (let i = 0; i < uniqueDomains.length; i += batchSize) {
+        const batch = uniqueDomains.slice(i, i + batchSize);
         const values = batch.map(domain => ({
-          domain: domain.toLowerCase(), 
+          domain,
           dateAdded: new Date(),
           lastSeen: new Date()
         }));
@@ -115,14 +136,21 @@ export default {
           .values(values)
           .onConflictDoUpdate({
             target: phishingDomains.domain,
-            set: { lastSeen: new Date() }
+            set: { 
+              lastSeen: new Date() 
+            }
           })
           .returning({
             domain: phishingDomains.domain,
-            isNew: sql<boolean>`${phishingDomains.dateAdded} = ${phishingDomains.lastSeen}`
+            dateAdded: phishingDomains.dateAdded,
+            lastSeen: phishingDomains.lastSeen
           });
 
-        const batchNewCount = result.filter(r => r.isNew).length;
+        const batchNewCount = result.filter(r => 
+          r.dateAdded && r.lastSeen && 
+          r.dateAdded.getTime() === r.lastSeen.getTime()
+        ).length;
+
         newCount += batchNewCount;
         updatedCount += (result.length - batchNewCount);
         
@@ -154,11 +182,25 @@ export default {
         currentStatus: `❌ ${isScheduled ? 'Scheduled' : 'Manual'} update failed: ${error.message}`,
         isProcessing: false
       });
+      console.error('Task failed:', {
+        message: error.message,
+        stack: error.stack
+      });
     }
   },
 
   async fetch(request: Request, env: Env, ctx: ExecutionContext) {
     const url = new URL(request.url);
+
+    // Add initialization endpoint
+    if (url.pathname === '/initialize') {
+      try {
+        await initializeDatabase(env);
+        return new Response('Database initialized successfully', { status: 200 });
+      } catch (error) {
+        return new Response('Failed to initialize database', { status: 500 });
+      }
+    }
 
     if (url.pathname === '/status') {
       return new Response(

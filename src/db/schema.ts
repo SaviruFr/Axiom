@@ -9,7 +9,7 @@ export const phishingDomains = pgTable(
     lastSeen: timestamp('last_seen').notNull().defaultNow(),
   },
   (table) => [
-    uniqueIndex('domain_idx').on(table.domain)
+    uniqueIndex('phishing_domains_domain_unique_idx').on(table.domain)
   ]
 );
 
