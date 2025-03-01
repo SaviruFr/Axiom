@@ -4,6 +4,10 @@ on:
     branches:
       - 'main'
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   prettier:
     name: Format Code
@@ -20,6 +24,8 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
+          check-latest: false
+          clean: false
 
       - name: Cache dependencies
         uses: actions/cache@v3
@@ -31,7 +37,7 @@ jobs:
 
       - name: Install Prettier and plugins
         run: |
-          npm ci
+          npm install --no-audit --prefer-offline --no-optional
           
       - name: Run Prettier
         run: npx prettier --write "**/*.{js,jsx,ts,tsx,json,md,astro}"
