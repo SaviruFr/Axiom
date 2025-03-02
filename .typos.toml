@@ -1,2 +1,2 @@
 [files]
-extend-exclude = [".typos.toml", "typos"]
+extend-exclude = ["typos"]
