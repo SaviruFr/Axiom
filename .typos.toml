@@ -1,0 +1,2 @@
+[files]
+extend-exclude = [".typos.toml", "typos"]
