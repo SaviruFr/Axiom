@@ -1,9 +1,9 @@
 ---
 import Layout from '@layouts/Layout.astro';
-import { truncateText } from '@scripts/textFormatter';
+import { truncateText } from '@scripts/formatters';
 import { site } from '@config/site';
-import { formatUrl } from '@scripts/urlFormatter';
-import { formatThreatType } from '@scripts/threatFormatter';
+import { formatUrl } from '@scripts/formatters';
+import { formatThreatType } from '@scripts/formatters';
 
 const url = Astro.url.searchParams.get('url');
 if (!url) {

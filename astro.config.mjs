@@ -10,6 +10,7 @@ export default defineConfig({
     site: 'https://axiom-new.pages.dev',
     adapter: cloudflare({
         mode: 'directory',
+        imageService: 'cloudflare',
         platformProxy: {
             enabled: true
         },

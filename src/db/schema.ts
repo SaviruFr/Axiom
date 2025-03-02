@@ -1,15 +1,14 @@
 import { pgTable, text, timestamp, uniqueIndex } from 'drizzle-orm/pg-core';
-import type { InferSelectModel, InferInsertModel } from 'drizzle-orm';
+import { sql } from 'drizzle-orm';
 
-export const phishingDomains = pgTable(
-  'phishing_domains',
-  {
-    domain: text('domain').notNull().primaryKey(),
-    dateAdded: timestamp('date_added').notNull().defaultNow(),
-    lastSeen: timestamp('last_seen').notNull().defaultNow(),
-  },
-  (table) => [uniqueIndex('phishing_domains_domain_unique_idx').on(table.domain)]
-);
+export const phishingDomains = pgTable('phishing_domains', 
+{
+  domain: text('domain').primaryKey(),
+  dateAdded: timestamp('date_added').notNull().default(sql`CURRENT_TIMESTAMP`),
+  lastSeen: timestamp('last_seen').notNull().default(sql`CURRENT_TIMESTAMP`)
+}, 
+(table) => [
+  uniqueIndex('domains_idx').on(table.domain)
+]);
 
-export type PhishingDomain = InferSelectModel<typeof phishingDomains>;
-export type PhishingDomainInsert = InferInsertModel<typeof phishingDomains>;
+export type PhishingDomain = typeof phishingDomains.$inferSelect;
