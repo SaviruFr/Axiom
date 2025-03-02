@@ -5,19 +5,19 @@ export const ElementIds = {
   AiRating: 'ai-rating',
   RiskLevel: 'risk-level',
   RiskScore: 'risk-score',
-  ThreatType: 'threat-type'
+  ThreatType: 'threat-type',
 } as const;
 
 type ElementIdType = keyof typeof ElementIds;
 
 export function updateUI(data: ScanData, threatMappings: ThreatMappings): void {
   const elements = Object.fromEntries(
-    Object.values(ElementIds).map(id => [id, document.getElementById(id)])
-  ) as Record<typeof ElementIds[ElementIdType], HTMLElement>;
+    Object.values(ElementIds).map((id) => [id, document.getElementById(id)])
+  ) as Record<(typeof ElementIds)[ElementIdType], HTMLElement>;
 
   const threats = data.detectedThreats;
-  const hasSafeBrowsing = threats.some(t => t.source === 'Google Safe Browsing');
-  const hasAI = threats.some(t => t.source === 'AI Analysis');
+  const hasSafeBrowsing = threats.some((t) => t.source === 'Google Safe Browsing');
+  const hasAI = threats.some((t) => t.source === 'AI Analysis');
 
   elements[ElementIds.SafeBrowsing]!.textContent = hasSafeBrowsing ? 'Dangerous' : 'Safe';
   elements[ElementIds.AiRating]!.textContent = hasAI ? 'Potentially Malicious' : 'Safe';
@@ -26,9 +26,9 @@ export function updateUI(data: ScanData, threatMappings: ThreatMappings): void {
 
   const firstThreat = threats[0];
   elements[ElementIds.ThreatType]!.textContent = firstThreat
-    ? (firstThreat.source === 'AI Analysis'
+    ? firstThreat.source === 'AI Analysis'
       ? threatMappings[firstThreat.type.toLowerCase()] || firstThreat.type
-      : firstThreat.type)
+      : firstThreat.type
     : 'No Threats';
 }
 
@@ -37,9 +37,14 @@ export async function fetchScanResults(url: string, threatMappings: ThreatMappin
     const response = await fetch('/api/scan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url })
+      body: JSON.stringify({ url }),
     });
-    updateUI(response.ok ? await response.json() : { riskLevel: 'Scan Failed', detectedThreats: [], score: 0 }, threatMappings);
+    updateUI(
+      response.ok
+        ? await response.json()
+        : { riskLevel: 'Scan Failed', detectedThreats: [], score: 0 },
+      threatMappings
+    );
   } catch {
     updateUI({ riskLevel: 'Scan Failed', detectedThreats: [], score: 0 }, threatMappings);
   }

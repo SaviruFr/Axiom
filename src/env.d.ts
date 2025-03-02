@@ -22,7 +22,12 @@ declare namespace App {
 }
 declare global {
   type ValidReason = 'phishing' | 'scam' | 'malware' | 'suspicious' | 'typosquatting';
-  type ThreatType = 'MALWARE' | 'SOCIAL_ENGINEERING' | 'UNWANTED_SOFTWARE' | 'POTENTIALLY_HARMFUL_APPLICATION' | 'THREAT_TYPE_UNSPECIFIED';
+  type ThreatType =
+    | 'MALWARE'
+    | 'SOCIAL_ENGINEERING'
+    | 'UNWANTED_SOFTWARE'
+    | 'POTENTIALLY_HARMFUL_APPLICATION'
+    | 'THREAT_TYPE_UNSPECIFIED';
   type ThreatSource = 'Google Safe Browsing' | 'AI Analysis' | 'Database';
   type PlatformType = 'ANY_PLATFORM' | 'WINDOWS' | 'LINUX' | 'ANDROID' | 'OSX' | 'IOS';
 

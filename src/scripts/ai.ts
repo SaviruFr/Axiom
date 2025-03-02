@@ -6,7 +6,7 @@ const VALID_REASONS: ReadonlySet<ValidReason> = new Set([
   'scam',
   'malware',
   'suspicious',
-  'typosquatting'
+  'typosquatting',
 ]);
 
 function isValidReason(reason: string): reason is ValidReason {
@@ -17,11 +17,12 @@ export async function Gemini(url: string, apiKey: string): Promise<GeminiResult>
   try {
     const model = new GoogleGenerativeAI(apiKey).getGenerativeModel({
       model: 'gemini-2.0-flash',
-      generationConfig: { temperature: 0, topK: 1, topP: 1 }
+      generationConfig: { temperature: 0, topK: 1, topP: 1 },
     });
 
-    const response = await model.generateContent(
-      `Analyze ONLY the URL string ${url} for immediate threats:
+    const response = await model
+      .generateContent(
+        `Analyze ONLY the URL string ${url} for immediate threats:
 
 1. Typosquatting
 
@@ -65,14 +66,16 @@ Output EXACTLY:
 MALICIOUS: true/false
 
 REASON: [phishing/scam/malware/typosquatting] (first matched category)`
-    ).then(result => result.response?.text() ?? '');
+      )
+      .then((result) => result.response?.text() ?? '');
 
-    const [, isMalicious = 'false', reason = 'suspicious'] = response.match(/MALICIOUS:\s*(true|false).*REASON:\s*(\w+)/i) || [];
+    const [, isMalicious = 'false', reason = 'suspicious'] =
+      response.match(/MALICIOUS:\s*(true|false).*REASON:\s*(\w+)/i) || [];
     const normalizedReason = reason.toLowerCase();
 
     return {
       isMalicious: isMalicious.toLowerCase() === 'true',
-      reason: isValidReason(normalizedReason) ? normalizedReason : 'suspicious'
+      reason: isValidReason(normalizedReason) ? normalizedReason : 'suspicious',
     };
   } catch {
     return { isMalicious: false, reason: 'error' };
