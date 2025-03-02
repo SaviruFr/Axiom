@@ -14,30 +14,23 @@ const THREAT_CONFIG = {
     'SOCIAL_ENGINEERING',
     'UNWANTED_SOFTWARE',
     'POTENTIALLY_HARMFUL_APPLICATION',
-    'THREAT_TYPE_UNSPECIFIED'
+    'THREAT_TYPE_UNSPECIFIED',
   ],
-  platformTypes: [
-    'ANY_PLATFORM',
-    'WINDOWS',
-    'LINUX',
-    'ANDROID',
-    'OSX',
-    'IOS'
-  ]
+  platformTypes: ['ANY_PLATFORM', 'WINDOWS', 'LINUX', 'ANDROID', 'OSX', 'IOS'],
 } as const;
 
 export async function scanUrl(apiKey: string, url: string): Promise<ScanResult> {
   const requestBody = {
     client: {
       clientId: 'axiom',
-      clientVersion: '1.0.0'
+      clientVersion: '1.0.0',
     },
     threatInfo: {
       threatTypes: THREAT_CONFIG.threatTypes,
       platformTypes: THREAT_CONFIG.platformTypes,
       threatEntryTypes: ['URL'],
-      threatEntries: [{ url }]
-    }
+      threatEntries: [{ url }],
+    },
   };
 
   try {
@@ -46,7 +39,7 @@ export async function scanUrl(apiKey: string, url: string): Promise<ScanResult> 
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(requestBody)
+        body: JSON.stringify(requestBody),
       }
     );
 
@@ -58,8 +51,8 @@ export async function scanUrl(apiKey: string, url: string): Promise<ScanResult> 
       threats: matches.map(({ threatType, platformType, threatEntryType }) => ({
         type: threatType,
         platform: platformType,
-        entryType: threatEntryType
-      }))
+        entryType: threatEntryType,
+      })),
     };
   } catch {
     return { scam: false, threats: [] };

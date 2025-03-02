@@ -1,5 +1,10 @@
 export type ValidReason = 'phishing' | 'scam' | 'malware' | 'suspicious' | 'typosquatting';
-export type ThreatType = 'MALWARE' | 'SOCIAL_ENGINEERING' | 'UNWANTED_SOFTWARE' | 'POTENTIALLY_HARMFUL_APPLICATION' | 'THREAT_TYPE_UNSPECIFIED';
+export type ThreatType =
+  | 'MALWARE'
+  | 'SOCIAL_ENGINEERING'
+  | 'UNWANTED_SOFTWARE'
+  | 'POTENTIALLY_HARMFUL_APPLICATION'
+  | 'THREAT_TYPE_UNSPECIFIED';
 export type ThreatSource = 'Google Safe Browsing' | 'AI Analysis' | 'Database';
 export type PlatformType = 'ANY_PLATFORM' | 'WINDOWS' | 'LINUX' | 'ANDROID' | 'OSX' | 'IOS';
 

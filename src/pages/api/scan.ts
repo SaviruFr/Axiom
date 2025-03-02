@@ -9,20 +9,20 @@ interface ScanRequest {
   url: string;
 }
 
-const createJsonResponse = (data: unknown, status = 200) => 
+const createJsonResponse = (data: unknown, status = 200) =>
   new Response(JSON.stringify(data), {
     status,
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
   });
 
 export const POST: APIRoute = async ({ request, locals }) => {
   try {
     const body = await request.json();
     if (!body || typeof body !== 'object' || !('url' in body) || typeof body.url !== 'string') {
-      return new Response(
-        JSON.stringify({ error: 'Valid URL is required' }), 
-        { status: 400, headers: { 'Content-Type': 'application/json' }}
-      );
+      return new Response(JSON.stringify({ error: 'Valid URL is required' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
 
     const { url } = body as ScanRequest;
@@ -39,7 +39,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const [inDatabase, aiResult, safeBrowsingResult] = await Promise.all([
       checkDomain(db, domain),
       Gemini(formattedUrl, geminiKey),
-      scanUrl(safeBrowsingKey, formattedUrl)
+      scanUrl(safeBrowsingKey, formattedUrl),
     ]);
 
     const threats: Array<{ source: ThreatSource; type: string }> = [];
@@ -51,7 +51,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       finalRiskLevel = 'High Risk';
       threats.push({
         source: 'Database' as const,
-        type: formatThreatType('MALICIOUS_SITE')
+        type: formatThreatType('MALICIOUS_SITE'),
       });
     }
 
@@ -60,17 +60,19 @@ export const POST: APIRoute = async ({ request, locals }) => {
       finalRiskLevel = finalScore >= 7 ? 'High Risk' : 'Medium Risk';
       threats.push({
         source: 'AI Analysis' as const,
-        type: formatThreatType(aiResult.reason.toUpperCase())
+        type: formatThreatType(aiResult.reason.toUpperCase()),
       });
     }
 
     if (safeBrowsingResult.scam) {
       finalScore = 10;
       finalRiskLevel = 'High Risk';
-      threats.push(...safeBrowsingResult.threats.map((threat: ThreatMatch) => ({
-        source: 'Google Safe Browsing' as const,
-        type: formatThreatType(threat.type)
-      })));
+      threats.push(
+        ...safeBrowsingResult.threats.map((threat: ThreatMatch) => ({
+          source: 'Google Safe Browsing' as const,
+          type: formatThreatType(threat.type),
+        }))
+      );
     }
 
     return createJsonResponse({
@@ -79,7 +81,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       score: finalScore,
       inDatabase,
       aiRating: aiResult.isMalicious ? 'Potentially Malicious' : 'Safe',
-      safeBrowsing: safeBrowsingResult.scam ? 'Dangerous' : 'Safe'
+      safeBrowsing: safeBrowsingResult.scam ? 'Dangerous' : 'Safe',
     });
   } catch (error) {
     console.error('Scan failed:', error);
