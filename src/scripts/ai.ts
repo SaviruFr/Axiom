@@ -1,5 +1,4 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import type { ValidReason, GeminiResult } from '../types/scan';
 
 const VALID_REASONS: ReadonlySet<ValidReason> = new Set([
   'phishing',

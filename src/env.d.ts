@@ -5,7 +5,7 @@
 interface Env {
   GEMINI_API_KEY: string;
   API: string;
-  DATABASE_URL: string;
+  NILEDB_URL: string;
 }
 
 interface ExecutionContext {
@@ -13,11 +13,9 @@ interface ExecutionContext {
   passThroughOnException(): void;
 }
 
-type Runtime = import('@astrojs/cloudflare').RuntimeInstance<Env>;
-
 declare namespace App {
   interface Locals {
-    runtime: Runtime;
+    runtime: import('@astrojs/cloudflare').RuntimeInstance<Env>;
   }
 }
 declare global {

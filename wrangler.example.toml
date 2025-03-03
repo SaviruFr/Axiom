@@ -3,5 +3,5 @@ compatibility_date = "2024-02-20"
 
 [vars]
 API = ""
-DATABASE_URL = ""
+NILEDB_URL = ""
 GEMINI_API_KEY = ""
