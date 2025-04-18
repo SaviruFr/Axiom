@@ -21,7 +21,7 @@
     "astro-compressor": "^1.0.0",
     "astro-robots-txt": "^1.0.0",
     "dotenv": "^16.4.7",
-    "drizzle-orm": "^0.40.0",
+    "drizzle-orm": "^0.42.0",
     "node-cron": "^3.0.3",
     "pg": "^8.13.3",
     "tailwindcss": "^3.4.1",
